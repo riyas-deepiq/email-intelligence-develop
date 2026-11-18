@@ -1,0 +1,8 @@
+{
+    // CSS Modules use :global() / composes syntax that VS Code's built-in
+    // CSS validator reports as false "problems". Vite + TypeScript catch
+    // real errors, so disable the editor's plain-CSS validation.
+    "css.validate": false,
+    "scss.validate": false,
+    "less.validate": false
+}

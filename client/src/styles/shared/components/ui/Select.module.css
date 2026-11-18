@@ -1,0 +1,75 @@
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--form-label-text);
+  transition: color 0.2s;
+}
+
+.selectWrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.select {
+  width: 100%;
+  min-height: 44px;
+  padding: 0.65rem 2.4rem 0.65rem 0.85rem;
+  border-radius: 10px;
+  border: 1px solid var(--form-input-border);
+  background: var(--form-input-bg);
+  color: var(--form-input-text);
+  font-size: 0.9375rem;
+  font-family: var(--font-sans);
+  outline: none;
+  box-sizing: border-box;
+  appearance: none;
+  -webkit-appearance: none;
+  cursor: pointer;
+  transition: border-color 0.15s, box-shadow 0.15s, background 0.15s;
+}
+
+.select:hover:not(:disabled):not(:focus) {
+  border-color: color-mix(in srgb, var(--brand) 45%, var(--form-input-border));
+}
+.select:focus {
+  border-color: var(--brand);
+  box-shadow: 0 0 0 3px var(--brand-focus-ring);
+}
+.select:disabled { opacity: 0.55; cursor: not-allowed; }
+
+.arrow {
+  position: absolute;
+  right: 0.7rem;
+  display: flex;
+  align-items: center;
+  color: var(--form-hint-text);
+  pointer-events: none;
+  transition: color 0.15s, transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.selectWrap:focus-within .arrow { color: var(--brand); transform: rotate(180deg); }
+
+/* ── Error state ── */
+.hasError .select { border-color: var(--color-danger); }
+.hasError .select:focus {
+  border-color: var(--color-danger);
+  box-shadow: 0 0 0 3px var(--color-danger-ring);
+}
+
+.hint {
+  font-size: 0.73rem;
+  color: var(--form-hint-text);
+  line-height: 1.45;
+}
+
+.errorMsg {
+  font-size: 0.73rem;
+  color: var(--color-danger);
+  line-height: 1.45;
+}

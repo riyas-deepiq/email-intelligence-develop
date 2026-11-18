@@ -1,0 +1,28 @@
+.cell {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  min-width: 0;
+}
+
+.text {
+  min-width: 0;
+}
+
+.name {
+  font-weight: 600;
+  font-size: 13px;
+  color: var(--text, var(--d-text-hi, #111827));
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.secondary {
+  font-size: 12px;
+  margin-top: 1px;
+  color: var(--text-3, var(--d-text-dim, #6b7280));
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

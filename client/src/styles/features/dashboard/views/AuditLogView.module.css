@@ -1,0 +1,53 @@
+.leftActions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  position: relative;
+  flex-wrap: wrap;
+}
+
+.dateRangePanel {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  z-index: 20;
+  background: var(--surface-1, #fff);
+  border: 1px solid var(--border, #e5e7eb);
+  border-radius: 10px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.14);
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 240px;
+}
+
+.dateField { display: flex; flex-direction: column; gap: 4px; }
+.dateField label { font-size: 11px; font-weight: 600; color: var(--text-3, #9ca3af); text-transform: uppercase; letter-spacing: 0.05em; }
+.dateField input {
+  padding: 7px 10px;
+  border: 1.5px solid var(--border, #e5e7eb);
+  border-radius: 7px;
+  font-size: 13px;
+  font-family: inherit;
+  color: var(--text-1, #111827);
+  background: var(--surface-1, #fff);
+}
+
+.dateRangeActions { display: flex; gap: 8px; justify-content: flex-end; }
+
+.rowIcon {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.whoCell { display: flex; align-items: center; gap: 10px; }
+.whoName { font-size: 13px; font-weight: 600; color: var(--text-1, #111827); }
+.whoRole { font-size: 11.5px; color: var(--text-3, #9ca3af); text-transform: capitalize; }
+
+.targetText { font-size: 13px; font-weight: 500; }

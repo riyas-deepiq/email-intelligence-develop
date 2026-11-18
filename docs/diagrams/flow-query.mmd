@@ -1,0 +1,24 @@
+%% Insight Hub — Query (read path), security-critical
+sequenceDiagram
+  autonumber
+  participant U as Employee
+  participant CS as Core Server
+  participant PG as PostgreSQL
+  participant AI as AI Service
+  participant QD as Qdrant
+  participant M as MiPhi Model
+
+  U->>CS: question (authenticated session)
+  CS->>PG: resolve reporting-chain scope (recursive CTE)
+  PG-->>CS: allowed mailbox_owner_ids[]
+  CS->>AI: /query { question, acl_filter, user_ctx }
+  AI->>QD: hybrid search (BM25 + BGE-M3) WITH acl_filter
+  QD-->>AI: candidates (permitted chunks only)
+  AI->>AI: RRF fuse -> cross-encoder rerank (top-K)
+  AI->>AI: build grounded prompt (email = DATA, fenced)
+  AI->>M: generate (OpenAI-compatible)
+  M-->>AI: grounded answer
+  AI->>AI: output guardrail (injection / leak / grounding)
+  AI-->>CS: answer + citations
+  CS->>PG: append audit (prompt + sources + response)
+  CS-->>U: answer + citations + permission-checked doc links

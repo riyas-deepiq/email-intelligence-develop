@@ -1,0 +1,24 @@
+%% Insight Hub — Pilot/GA HA topology (k3s)
+flowchart TB
+  subgraph K3S[k3s Cluster]
+    direction TB
+    LB[Ingress / LB]
+    CSx[Core Server x N]
+    PRx[Probe workers x N]
+    AIx[AI Service x N]
+    PGp[(Postgres primary)]
+    PGr[(Postgres replica)]
+    QDc[(Qdrant replicated)]
+    MINc[(MinIO erasure-coded)]
+    REDc[(Redis)]
+    MQc[(RabbitMQ)]
+  end
+  subgraph AIPOOL[MiPhi AI Node pool]
+    MODELx[Qwen2.5 x N]
+  end
+  LB --> CSx
+  CSx --> PGp --> PGr
+  CSx --> AIx --> QDc
+  PRx --> MINc
+  PRx --> MQc
+  AIx --> MODELx

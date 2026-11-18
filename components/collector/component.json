@@ -1,0 +1,50 @@
+{
+  "$schema": "../component.schema.json",
+  "id": "collector",
+  "name": "Email Collector",
+  "description": "Polls the server for mailbox sync jobs and ingests email from Microsoft 365 / Google Workspace. Optional: install it only on the node that should do the fetching. Without it the platform runs, but no mail is ever collected.",
+  "kind": "service",
+  "required": false,
+  "binary": {
+    "win32": "collector/insight-hub-collector.exe",
+    "linux": "collector/insight-hub-collector"
+  },
+  "service": {
+    "name": "InsightHubCollector",
+    "displayName": "Insight Hub Collector",
+    "arguments": [],
+    "port": "${COLLECTOR_PORT}",
+    "restart": "on-failure",
+    "env": {
+      "INSIGHT_HUB_CONFIG_DIR": "${CONFIG_DIR}/collector"
+    }
+  },
+  "config": [
+    "NODE_ENV",
+    "PORT",
+    "SERVER_URL",
+    "COLLECTOR_SECRET",
+    "COLLECTOR_INSTANCE_ID",
+    "LOG_LEVEL",
+    "LOG_PATH",
+    "POLL_INTERVAL_MS",
+    "WORKER_CONCURRENCY",
+    "JOB_HEARTBEAT_MS",
+    "FLUSH_MAX_MESSAGES",
+    "FLUSH_MAX_SIZE_MB",
+    "FLUSH_MAX_AGE_MS"
+  ],
+  "dataDirs": ["config/collector"],
+  "healthcheck": {
+    "path": "/health",
+    "timeoutSec": 60
+  },
+  "provisioning": {
+    "provision": "provision --collector-config-dir <dir> --collector-port <port>",
+    "health": "health --path /health"
+  },
+  "firewall": {
+    "inbound": []
+  },
+  "dependsOn": ["server"]
+}

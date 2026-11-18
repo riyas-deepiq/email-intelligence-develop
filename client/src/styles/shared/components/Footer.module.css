@@ -1,0 +1,21 @@
+.footer {
+  background: var(--d-surface);
+  border-top: 1px solid var(--d-border);
+  color: var(--d-text-lo);
+  padding: 1.75rem var(--page-gutter);
+  text-align: center;
+}
+
+.brandLockup {
+  --brand-word-color: var(--d-text-hi);
+  --brand-word-size: 0.95rem;
+  --brand-tagline-color: var(--d-text-lo);
+  --brand-tagline-size: 0.5rem;
+  --brand-tagline-gap: 0.28rem;
+  margin-bottom: 11px;
+}
+
+.copy {
+  margin: 0;
+  font-size: 0.8rem;
+}

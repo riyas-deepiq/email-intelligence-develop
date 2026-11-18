@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/png" href="./src/assets/icons/insight-hub-icon.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Insight Hub — Intelligence Without Boundaries." />
+    <title>Insight Hub</title>
+    <script>
+      // Set theme AND palette before first paint to avoid a flash of the wrong
+      // colours. Both must be applied here, not just in React, or a chosen
+      // palette shows the default (sage) for one frame on every load.
+      (function () {
+        try {
+          var t = localStorage.getItem('insight-hub-theme') || localStorage.getItem('raynex-theme') || 'auto';
+          var resolved = t === 'auto'
+            ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
+            : t;
+          document.documentElement.setAttribute('data-theme', resolved);
+          document.documentElement.setAttribute('data-palette', localStorage.getItem('insight-hub-palette') || localStorage.getItem('raynex-palette') || 'violet');
+        } catch (e) {
+          document.documentElement.setAttribute('data-theme', 'light');
+          document.documentElement.setAttribute('data-palette', 'violet');
+        }
+      })();
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

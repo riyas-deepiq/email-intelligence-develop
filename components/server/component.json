@@ -1,0 +1,67 @@
+{
+  "$schema": "../component.schema.json",
+  "id": "server",
+  "name": "Core Server",
+  "description": "API, authentication, orchestration and the web UI, in one service.",
+  "kind": "service",
+  "required": true,
+  "binary": {
+    "win32": "server/insight-hub-server.exe",
+    "linux": "server/insight-hub-server"
+  },
+  "service": {
+    "name": "InsightHub",
+    "displayName": "Insight Hub",
+    "arguments": ["serve"],
+    "port": "${APP_PORT}",
+    "restart": "on-failure",
+    "env": {
+      "INSIGHT_HUB_CONFIG_DIR": "${CONFIG_DIR}"
+    }
+  },
+  "config": [
+    "NODE_ENV",
+    "PORT",
+    "LOG_LEVEL",
+    "DB_DRIVER",
+    "DATABASE_URL",
+    "REDIS_URL",
+    "JWT_SECRET",
+    "JWT_EXPIRES_IN",
+    "REFRESH_TOKEN_TTL_SEC",
+    "OIDC_ENCRYPTION_KEY",
+    "COLLECTOR_SECRET",
+    "RAG_API_URL",
+    "RAG_API_SECRET",
+    "OLLAMA_BASE_URL",
+    "OLLAMA_MODEL",
+    "OLLAMA_TIMEOUT_MS",
+    "SEED_DEFAULT_ADMIN",
+    "SEED_ADMIN_EMAIL",
+    "SEED_ADMIN_PASSWORD",
+    "SMTP_HOST",
+    "SMTP_PORT",
+    "SMTP_USER",
+    "SMTP_PASS",
+    "SMTP_FROM",
+    "UPLOAD_PATH",
+    "LOG_PATH",
+    "BACKUP_PATH",
+    "CORS_ORIGIN"
+  ],
+  "dataDirs": ["config", "logs", "uploads", "backups", "temp"],
+  "healthcheck": {
+    "path": "/api/v1/health",
+    "timeoutSec": 60
+  },
+  "provisioning": {
+    "dbTest": "db:test",
+    "provision": "provision",
+    "adminCreate": "admin:create",
+    "health": "health"
+  },
+  "firewall": {
+    "inbound": ["${APP_PORT}"]
+  },
+  "dependsOn": []
+}

@@ -1,0 +1,110 @@
+/* ── Container ────────────────────────────────────────────────────────────── */
+.container {
+  position: fixed;
+  top: 3.5rem;
+  right: 1.25rem;
+  z-index: 99999;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.5rem;
+  max-width: min(92vw, 380px);
+  pointer-events: none;
+}
+
+/* ── Toast — minimal pill (Sonner/Linear/Vercel style) ───────────────────── */
+.toast {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  max-width: 380px;
+  background: var(--d-surface);
+  border: 1px solid var(--d-border);
+  box-shadow: var(--shadow-md);
+  color: var(--d-text-hi);
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.4;
+  font-family: var(--font-sans, sans-serif);
+  pointer-events: all;
+  animation: toastIn 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* No title → true single-line pill */
+.pill {
+  border-radius: 999px;
+  padding: 0.6rem 0.55rem 0.6rem 0.85rem;
+}
+
+/* With title → soft rounded card, icon aligns to first line */
+.withTitle {
+  border-radius: 16px;
+  align-items: flex-start;
+  padding: 0.7rem 0.6rem 0.7rem 0.9rem;
+}
+
+.toast.leaving {
+  animation: toastOut 0.22s cubic-bezier(0.4, 0, 1, 1) forwards;
+}
+
+/* Shake when a duplicate toast is suppressed (re-triggered via shakeNonce). */
+.toast.shake {
+  animation: toastShake 0.42s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+}
+@keyframes toastShake {
+  10%, 90% { transform: translateX(-1px); }
+  20%, 80% { transform: translateX(3px); }
+  30%, 50%, 70% { transform: translateX(-6px); }
+  40%, 60% { transform: translateX(6px); }
+}
+
+/* @keyframes toastIn / toastOut defined globally in animations.css */
+
+/* ── Icon (plain, colored by type — no wrapper badge) ────────────────────── */
+.icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 15px;
+  height: 15px;
+}
+.withTitle .icon { margin-top: 1px; }
+
+.success .icon { color: var(--color-success); }
+.error   .icon { color: var(--color-danger); }
+.warning .icon { color: var(--color-warning); }
+.info    .icon { color: var(--accent-orange); }
+
+/* ── Body ─────────────────────────────────────────────────────────────────── */
+.body { flex: 1; min-width: 0; }
+
+.title {
+  font-weight: 700;
+  font-size: 12.5px;
+  line-height: 1.3;
+  margin-bottom: 1px;
+}
+
+.message {
+  font-size: 13px;
+  line-height: 1.4;
+  opacity: 0.88;
+}
+
+/* ── Close button ─────────────────────────────────────────────────────────── */
+.close {
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  padding: 4px;
+  border-radius: 50%;
+  color: currentColor;
+  opacity: 0.4;
+  flex-shrink: 0;
+  transition: opacity 0.15s, background 0.15s;
+}
+.close:hover { opacity: 0.9; background: var(--d-surface-hover); }

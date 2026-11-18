@@ -1,0 +1,88 @@
+{
+  "name": "@insight-hub/server",
+  "version": "0.1.0",
+  "description": "Insight Hub — Core Server (auth, permissions, query orchestration, audit, admin APIs)",
+  "main": "dist/server.js",
+  "bin": "dist/cli.js",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "check": "npm run typecheck && npm run lint && npm run test:run",
+    "dev": "npm run check && tsx watch src/server.ts",
+    "dev:fast": "tsx watch src/server.ts",
+    "start": "node dist/server.js",
+    "cli": "tsx src/cli.ts",
+    "build": "tsc -p tsconfig.build.json",
+    "bundle:client": "node scripts/bundle-client.mjs",
+    "package:prepare": "npm run build && npm run bundle:client",
+    "package:win": "npm run package:prepare && pkg . --targets node22-win-x64 --compress Brotli --output ../release/win/insight-hub-server.exe",
+    "package:linux": "npm run package:prepare && pkg . --targets node22-linux-x64 --compress Brotli --output ../release/linux/insight-hub-server",
+    "package:all": "npm run package:prepare && pkg . --targets node22-win-x64,node22-linux-x64 --out-path ../release",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "test": "vitest",
+    "test:run": "vitest run",
+    "test:unit": "vitest run tests/unit",
+    "test:e2e": "vitest run tests/e2e",
+    "test:coverage": "vitest run --coverage",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier --write \"src/**/*.ts\" \"tests/**/*.ts\" \"scripts/**/*.mjs\" \"vitest.config.ts\"",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate",
+    "db:push": "drizzle-kit push",
+    "db:studio": "drizzle-kit studio"
+  },
+  "pkg": {
+    "targets": [
+      "node22-win-x64",
+      "node22-linux-x64"
+    ],
+    "assets": [
+      "drizzle/**/*",
+      "public/**/*",
+      "package.json",
+      "node_modules/drizzle-orm/**/*"
+    ],
+    "scripts": [
+      "dist/**/*.js"
+    ]
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "drizzle-orm": "^0.45.2",
+    "express": "^4.19.2",
+    "express-rate-limit": "^8.5.2",
+    "googleapis": "^173.0.0",
+    "hash-wasm": "^4.12.0",
+    "helmet": "^7.1.0",
+    "ioredis": "^5.11.1",
+    "jsonwebtoken": "^9.0.3",
+    "nodemailer": "^9.0.0",
+    "pg": "^8.21.0",
+    "pino": "^9.3.2"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.17",
+    "@types/express": "^4.17.21",
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/node": "^20.14.10",
+    "@types/nodemailer": "^8.0.1",
+    "@types/pg": "^8.20.0",
+    "@types/supertest": "^6.0.2",
+    "@typescript-eslint/eslint-plugin": "^7.16.0",
+    "@typescript-eslint/parser": "^7.16.0",
+    "@vitest/coverage-v8": "^4.1.9",
+    "@yao-pkg/pkg": "^6.21.0",
+    "drizzle-kit": "^0.31.10",
+    "eslint": "^8.57.0",
+    "eslint-config-prettier": "^9.1.0",
+    "pino-pretty": "^11.2.1",
+    "prettier": "^3.3.3",
+    "supertest": "^7.0.0",
+    "tsx": "^4.16.2",
+    "typescript": "^5.5.3",
+    "vitest": "^4.1.9"
+  }
+}

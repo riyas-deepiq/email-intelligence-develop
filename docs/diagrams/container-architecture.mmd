@@ -1,0 +1,33 @@
+%% Insight Hub — Container Architecture (C4 Level 2)
+flowchart LR
+  subgraph APP[Application Tier]
+    UI[Web Client\nReact + TS]
+    CS[Core Server\nNode + TS]
+    PR[Probe\nNode + TS]
+    AI[AI Service\nPython / FastAPI]
+  end
+  subgraph DATA[Data Tier]
+    PG[(PostgreSQL)]
+    QD[(Qdrant)]
+    MIN[(MinIO)]
+    RED[(Redis)]
+    MQ[(RabbitMQ)]
+  end
+  MODEL[Model Serving\nMiPhi · Qwen2.5]
+  IDP[Identity Provider]
+  MAIL[M365 Graph / Google WS]
+
+  UI <-->|OIDC/SAML| IDP
+  UI -->|HTTPS / REST| CS
+  CS --> PG
+  CS --> RED
+  CS -->|/query| AI
+  PR -->|delta sync pull| MAIL
+  PR -->|raw .eml + attachments| MIN
+  PR -->|message/thread metadata| PG
+  PR -->|enqueue process jobs| MQ
+  MQ -->|consume| AI
+  AI -->|upsert vectors + ACL| QD
+  AI -->|read attachments| MIN
+  AI -->|email/thread summaries| PG
+  AI -->|inference| MODEL

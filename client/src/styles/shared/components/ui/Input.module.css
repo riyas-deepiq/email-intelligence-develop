@@ -1,0 +1,105 @@
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.label {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--form-label-text);
+  transition: color 0.2s;
+}
+
+/* ── Input wrapper ── */
+.inputWrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.input {
+  --autofill-bg: var(--form-input-bg);
+  --autofill-text: var(--form-input-text);
+  width: 100%;
+  min-height: 44px;
+  padding: 0.65rem 0.85rem;
+  border-radius: 10px;
+  border: 1px solid var(--form-input-border);
+  background: var(--form-input-bg);
+  color: var(--form-input-text);
+  font-size: 0.9375rem;
+  font-family: var(--font-sans);
+  outline: none;
+  box-sizing: border-box;
+  transition: border-color 0.18s, box-shadow 0.18s, background 0.18s, color 0.18s;
+}
+
+.input::placeholder { color: var(--form-input-placeholder); }
+.input:focus {
+  border-color: var(--brand);
+  box-shadow: 0 0 0 3px var(--brand-focus-ring);
+}
+.input:hover:not(:disabled):not(:focus) { border-color: color-mix(in srgb, var(--brand) 35%, var(--form-input-border)); }
+.input:disabled { opacity: 0.55; cursor: not-allowed; }
+
+/* Padding adjustment when icons are present */
+.hasPrefixIcon { padding-left: 2.4rem; }
+.hasSuffixIcon { padding-right: 2.4rem; }
+
+/* ── Icons ── */
+.prefixIcon {
+  position: absolute;
+  left: 0.7rem;
+  display: flex;
+  align-items: center;
+  color: var(--form-hint-text);
+  pointer-events: none;
+  flex-shrink: 0;
+}
+
+.suffixIcon {
+  position: absolute;
+  right: 0.7rem;
+  display: flex;
+  align-items: center;
+  color: var(--form-hint-text);
+  pointer-events: none;
+  flex-shrink: 0;
+}
+
+/* Password show/hide button — positions the shared PasswordToggle */
+.suffixBtn {
+  position: absolute;
+  right: 0.35rem;
+}
+
+/* ── Error state ── */
+.hasError .input {
+  border-color: var(--color-danger);
+}
+.hasError .input:focus {
+  border-color: var(--color-danger);
+  box-shadow: 0 0 0 3px var(--color-danger-ring);
+}
+
+/* ── Hint / Error text ── */
+.hint {
+  font-size: 0.73rem;
+  color: var(--form-hint-text);
+  line-height: 1.45;
+}
+.hint code {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  background: color-mix(in srgb, var(--brand) 10%, transparent);
+  color: var(--brand-fg, #818cf8);
+  border-radius: 3px;
+  padding: 0 3px;
+}
+
+.errorMsg {
+  font-size: 0.73rem;
+  color: var(--color-danger);
+  line-height: 1.45;
+}

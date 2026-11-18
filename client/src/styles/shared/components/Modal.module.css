@@ -1,0 +1,120 @@
+.dialog {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  margin: 0;
+  border: none;
+  padding: 0;
+  background: transparent;
+  width: calc(100% - 32px);
+  max-height: calc(100dvh - 32px);
+  overflow: hidden;
+  border-radius: var(--radius-lg);
+  outline: none;
+}
+
+.dialog::backdrop {
+  background: rgba(10, 7, 20, 0.64);
+  backdrop-filter: blur(6px);
+}
+
+.panel {
+  background: var(--d-surface, #fff);
+  color: var(--d-text-md, #374151);
+  border: 1px solid var(--d-border, #e5e7eb);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-lg);
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  max-height: calc(100dvh - 32px);
+  animation: fadeIn 0.15s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-8px) scale(0.98); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 20px 14px;
+  border-bottom: 1px solid var(--d-border, #e5e7eb);
+  flex-shrink: 0;
+}
+
+.title {
+  min-width: 0;
+  font-family: var(--font-display);
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--d-text-hi, #111827);
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.closeBtn {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  color: var(--d-text-dim, #9ca3af);
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+  flex-shrink: 0;
+}
+.closeBtn:hover { background: var(--d-surface-hover, #f3f4f6); color: var(--d-text-hi, #111827); }
+
+.body {
+  min-height: 0;
+  padding: 20px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  line-height: 1.5;
+}
+
+.body > * {
+  flex-shrink: 0;
+}
+
+.footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  align-items: center;
+  padding: 14px 20px 18px;
+  border-top: 1px solid var(--d-border, #e5e7eb);
+  flex-shrink: 0;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 640px) {
+  .dialog,
+  .panel {
+    max-height: calc(100dvh - 20px);
+  }
+
+  .dialog {
+    width: calc(100% - 20px);
+  }
+
+  .body {
+    padding: 16px;
+  }
+
+  .header,
+  .footer {
+    padding-inline: 16px;
+  }
+}

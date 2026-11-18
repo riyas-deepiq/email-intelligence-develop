@@ -1,0 +1,156 @@
+/* ── Provider picker ──────────────────────────────────────────────────────── */
+.providerPicker {
+  display: flex;
+  gap: 0.75rem;
+  margin-bottom: 1.75rem;
+}
+
+.providerTab {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  padding: 0.85rem 1rem;
+  border-radius: 10px;
+  border: 1.5px solid var(--form-input-border);
+  background: var(--d-surface-hover);
+  color: var(--form-hint-text);
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: border-color 0.18s, background 0.18s, color 0.18s;
+  font-family: var(--font-sans);
+}
+
+.providerTab:hover {
+  border-color: var(--brand);
+  color: var(--brand);
+  background: var(--d-surface);
+}
+
+.providerTabActive {
+  border-color: var(--brand);
+  background: var(--brand-light);
+  color: var(--brand);
+  font-weight: 600;
+}
+
+.providerTabIcon {
+  display: flex;
+  align-items: center;
+  width: 20px;
+  height: 20px;
+}
+
+/* "+" tile at the end of the provider row — opens the full catalogue.
+   flex:0 keeps it square instead of stretching like the provider tabs. */
+.providerAddTab {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  align-self: stretch;
+  border-radius: 10px;
+  border: 1.5px dashed var(--form-input-border);
+  background: transparent;
+  color: var(--form-hint-text);
+  font-size: 1.15rem;
+  line-height: 1;
+  cursor: pointer;
+  font-family: var(--font-sans);
+  transition: border-color 0.18s, color 0.18s, background 0.18s;
+}
+
+.providerAddTab:hover:not(:disabled) {
+  border-color: var(--brand);
+  color: var(--brand);
+  background: var(--brand-light);
+}
+
+.providerAddTab:focus-visible {
+  outline: 2px solid var(--brand-focus-ring, var(--brand));
+  outline-offset: 2px;
+}
+
+.providerAddTab:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* ── File upload (Google service account) ─────────────────────────────────── */
+.uploadLabel {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--form-label-text);
+}
+
+.jsonUploadRow { display: flex; align-items: center; gap: 0.75rem; }
+
+.uploadBtn {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.45rem 0.9rem;
+  border-radius: 8px;
+  border: 1.5px solid var(--form-input-border);
+  background: var(--form-input-bg);
+  color: var(--form-input-text);
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: border-color 0.18s, background 0.18s;
+}
+.uploadBtn:hover { border-color: var(--brand); }
+
+.uploadHint { font-size: 0.73rem; color: var(--form-hint-text); }
+
+.jsonOk  { font-size: 0.75rem; color: var(--color-success); font-weight: 600; }
+.jsonErr { font-size: 0.75rem; color: var(--color-danger);  font-weight: 600; }
+
+/* ── Test result ──────────────────────────────────────────────────────────── */
+.testResult {
+  border-radius: 10px;
+  border: 1.5px solid;
+  padding: 0.85rem 1rem;
+  margin-top: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.testResultOk   { border-color: var(--color-success-light); background: var(--color-success-bg); }
+.testResultFail { border-color: var(--color-danger);        background: var(--color-danger-bg);  }
+
+.testResultTitle { font-size: 0.82rem; font-weight: 700; color: var(--form-label-text); }
+.testResultError { font-size: 0.78rem; color: var(--color-danger); }
+
+.permRow { display: flex; align-items: center; gap: 0.4rem; font-size: 0.78rem; color: var(--form-label-text); }
+.permOk  { color: var(--color-success); flex-shrink: 0; }
+.permErr { color: var(--color-danger);  flex-shrink: 0; }
+
+.sampleUsers { display: flex; align-items: center; flex-wrap: wrap; gap: 0.35rem; margin-top: 0.25rem; }
+.sampleLabel { font-size: 0.72rem; color: var(--form-hint-text); font-weight: 600; }
+.sampleEmail {
+  font-size: 0.72rem;
+  background: color-mix(in srgb, var(--brand) 10%, transparent);
+  color: var(--brand-fg, #818cf8);
+  border-radius: 4px;
+  padding: 1px 6px;
+}
+
+/* ── Action row ───────────────────────────────────────────────────────────── */
+.actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  margin-top: 2rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--form-input-border);
+  gap: 0.75rem;
+}
+
+.actionsRight {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}

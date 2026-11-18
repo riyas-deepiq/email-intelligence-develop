@@ -1,0 +1,83 @@
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  min-height: 40px;
+  border-radius: 10px;
+  font-family: var(--font-sans);
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.18s, opacity 0.18s, border-color 0.18s, color 0.18s, box-shadow 0.18s, transform 0.12s;
+}
+
+.btn:disabled { opacity: 0.55; cursor: not-allowed; }
+.btn:active:not(:disabled) { transform: translateY(1px); }
+
+.fullWidth { width: 100%; }
+
+/* ── Sizes ── */
+.sm { min-height: 36px; padding: 0.4rem 0.85rem; font-size: 0.8rem; }
+.md { min-height: 42px; padding: 0.6rem 1.1rem; font-size: 0.875rem; }
+.lg { min-height: 48px; padding: 0.75rem 1.4rem; font-size: 0.95rem; }
+
+/* ── Primary ── */
+.primary {
+  background: linear-gradient(135deg, var(--brand), var(--brand-hover));
+  color: #fff;
+  border: 1.5px solid transparent;
+}
+.primary:hover:not(:disabled) { background: linear-gradient(135deg, var(--brand-hover), var(--brand)); box-shadow: var(--shadow-glow); }
+.primary:focus-visible { box-shadow: 0 0 0 3px var(--brand-focus-ring); outline: none; }
+
+/* ── Secondary (outlined brand) ── */
+.secondary {
+  background: transparent;
+  color: var(--brand);
+  border: 1.5px solid var(--brand);
+}
+.secondary:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--brand) 10%, transparent);
+}
+.secondary:focus-visible { box-shadow: 0 0 0 3px var(--brand-focus-ring); outline: none; }
+
+/* ── Ghost (subtle) ── */
+.ghost {
+  background: transparent;
+  color: var(--form-hint-text);
+  border: 1.5px solid var(--form-input-border);
+}
+.ghost:hover:not(:disabled) {
+  color: var(--form-input-text);
+  border-color: var(--form-hint-text);
+}
+
+/* ── Danger ── */
+.danger {
+  background: var(--color-danger);
+  color: #fff;
+  border: 1.5px solid transparent;
+}
+.danger:hover:not(:disabled) { opacity: 0.88; }
+.danger:focus-visible { box-shadow: 0 0 0 3px var(--color-danger-ring); outline: none; }
+
+/* ── Spinner ── */
+.spinner {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border: 2px solid currentColor;
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  flex-shrink: 0;
+}
+/* @keyframes spin defined globally in animations.css */
+
+.icon { display: flex; align-items: center; flex-shrink: 0; }
+
+@media (max-width: 640px) {
+  .sm { min-height: 40px; }
+  .md, .lg { min-height: 44px; }
+}

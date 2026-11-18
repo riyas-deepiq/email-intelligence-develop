@@ -1,0 +1,67 @@
+.track {
+  position: relative;
+  flex: 1;
+  min-width: 90px;
+  height: 6px;
+  background: var(--d-surface-hover);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.fill {
+  position: relative;
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--brand), color-mix(in srgb, var(--brand) 55%, #22d3ee));
+  transition: width 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  overflow: hidden;
+}
+
+/* Sliding highlight over a determinate fill while actively running. */
+.shine {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.45), transparent);
+  transform: translateX(-100%);
+  animation: progressShine 1.4s ease-in-out infinite;
+}
+@keyframes progressShine {
+  100% { transform: translateX(100%); }
+}
+
+/* Indeterminate bar when running with an unknown total. */
+.indeterminate {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 40%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, transparent, var(--brand), transparent);
+  animation: progressSlide 1.2s ease-in-out infinite;
+}
+@keyframes progressSlide {
+  0%   { left: -40%; }
+  100% { left: 100%; }
+}
+
+.label {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--d-sec-strong, var(--brand));
+  white-space: nowrap;
+}
+.dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--brand);
+  animation: progressPulse 1s ease-in-out infinite;
+}
+@keyframes progressPulse {
+  0%, 100% { opacity: 0.35; transform: scale(0.8); }
+  50%      { opacity: 1;    transform: scale(1); }
+}

@@ -1,0 +1,95 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://insight-hub/component.schema.json",
+  "title": "Installable component descriptor",
+  "description": "Describes one deployable unit consumed by the installer core. See docs/packaging-design.md §0B.",
+  "type": "object",
+  "required": ["id", "name", "kind"],
+  "additionalProperties": false,
+  "properties": {
+    "$schema": { "type": "string" },
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9-]*$",
+      "description": "Stable identifier, unique across components; also the folder name."
+    },
+    "name": { "type": "string", "description": "Human-readable name shown in the wizard." },
+    "description": { "type": "string" },
+    "kind": {
+      "enum": ["service", "container", "static", "external"],
+      "description": "service = native WinSW/systemd process; container = Compose-managed service; static = files only; external = customer-provided dependency."
+    },
+    "required": {
+      "type": "boolean",
+      "default": false,
+      "description": "When true the component cannot be deselected on the components page."
+    },
+    "image": { "type": "string", "description": "Container image repository for kind=container." },
+    "binary": {
+      "description": "Executable path relative to the install root, per platform.",
+      "type": "object",
+      "required": ["win32", "linux"],
+      "properties": {
+        "win32": { "type": "string" },
+        "linux": { "type": "string" }
+      },
+      "additionalProperties": false
+    },
+    "service": {
+      "type": "object",
+      "required": ["name"],
+      "properties": {
+        "name": { "type": "string", "description": "Service/unit name." },
+        "displayName": { "type": "string" },
+        "arguments": { "type": "array", "items": { "type": "string" } },
+        "port": { "type": "string", "description": "Listening port; may reference an installer variable such as ${APP_PORT}." },
+        "restart": { "enum": ["no", "on-failure", "always"], "default": "on-failure" },
+        "env": {
+          "type": "object",
+          "additionalProperties": { "type": "string" },
+          "description": "Environment set on the service definition; values may reference installer variables."
+        }
+      },
+      "additionalProperties": false
+    },
+    "config": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Environment keys this component owns in the generated .env."
+    },
+    "dataDirs": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Writable directories created under the data root and granted service access."
+    },
+    "healthcheck": {
+      "type": "object",
+      "required": ["path"],
+      "properties": {
+        "path": { "type": "string", "pattern": "^/" },
+        "timeoutSec": { "type": "integer", "minimum": 1, "default": 60 }
+      },
+      "additionalProperties": false
+    },
+    "provisioning": {
+      "type": "object",
+      "description": "CLI subcommands the installer shells out to (docs/cli-provisioning-spec.md).",
+      "additionalProperties": { "type": "string" }
+    },
+    "firewall": {
+      "type": "object",
+      "properties": {
+        "inbound": { "type": "array", "items": { "type": "string" } }
+      },
+      "additionalProperties": false
+    },
+    "servedBy": { "type": "string", "description": "For kind=static: the component that serves these assets." },
+    "buildOutput": { "type": "string" },
+    "bundledInto": { "type": "string" },
+    "dependsOn": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Ids that must be installed and started before this one."
+    }
+  }
+}

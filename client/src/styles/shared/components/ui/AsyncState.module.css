@@ -1,0 +1,32 @@
+.box {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 1rem 1.25rem;
+  background: var(--d-surface);
+  border: 1px solid var(--d-border);
+  border-radius: 10px;
+  font-size: 0.84rem;
+  color: var(--d-text-dim);
+}
+
+.error {
+  border-color: var(--color-danger-border);
+  background: var(--color-danger-bg);
+  color: var(--color-danger);
+}
+
+.spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid var(--d-border);
+  border-top-color: var(--brand, #4f46e5);
+  border-radius: 50%;
+  flex-shrink: 0;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}

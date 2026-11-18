@@ -1,0 +1,113 @@
+/* ── "Add a provider" catalogue (inside the picker modal) ─────────────────── */
+
+.catalogue {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.catalogueRow {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 0.8rem 0.95rem;
+  border-radius: 10px;
+  border: 1.5px solid var(--form-input-border, var(--border));
+  background: var(--d-surface, var(--bg-elevated));
+  color: var(--color-text);
+  font-family: var(--font-sans);
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.18s, background 0.18s;
+}
+
+.catalogueRow:hover:not(:disabled) {
+  border-color: var(--brand);
+  background: var(--brand-light);
+}
+
+.catalogueRow:focus-visible {
+  outline: 2px solid var(--brand-focus-ring, var(--brand));
+  outline-offset: 2px;
+}
+
+.catalogueRow:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.catalogueIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  flex-shrink: 0;
+}
+
+.catalogueIcon svg { width: 100%; height: 100%; }
+
+.monogram {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 7px;
+  background: var(--bg-hover, rgba(127, 127, 127, 0.14));
+  color: var(--color-text-muted);
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.catalogueText {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.catalogueName {
+  font-size: 0.88rem;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.catalogueBlurb {
+  font-size: 0.74rem;
+  color: var(--color-text-muted);
+  line-height: 1.3;
+}
+
+.soonBadge,
+.connectedBadge {
+  flex-shrink: 0;
+  font-size: 0.66rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  padding: 0.22rem 0.5rem;
+  border-radius: 20px;
+  white-space: nowrap;
+}
+
+.soonBadge {
+  background: var(--bg-hover, rgba(127, 127, 127, 0.14));
+  color: var(--color-text-muted);
+}
+
+.connectedBadge {
+  background: var(--color-success-bg, rgba(34, 197, 94, 0.12));
+  color: var(--color-success, #22c55e);
+}
+
+.chevron {
+  flex-shrink: 0;
+  color: var(--color-text-muted);
+  font-size: 0.95rem;
+}

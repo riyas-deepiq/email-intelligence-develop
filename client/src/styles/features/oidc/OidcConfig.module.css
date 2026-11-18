@@ -1,0 +1,594 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   SSO / OIDC connector settings
+   Class names are unchanged from the previous revision — this is a pure visual
+   pass, so OidcConfig.tsx needs no edits.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ── Page shell ──────────────────────────────────────────────────────────── */
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* ── Provider picker ─────────────────────────────────────────────────────── */
+.providerPicker {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+}
+
+.providerCard {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 7px;
+  padding: 13px 10px 11px;
+  background: var(--d-surface);
+  border: 1.5px solid var(--d-border);
+  border-radius: 12px;
+  cursor: pointer;
+  font-family: var(--font-sans);
+  overflow: hidden;
+  transition:
+    border-color 0.2s ease,
+    box-shadow   0.2s ease,
+    transform    0.2s ease,
+    background   0.2s ease;
+}
+
+/* Soft wash that fades in on hover/selection — gives the tiles depth without
+   a heavy border treatment. */
+.providerCard::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(160deg, var(--d-accent-bg), transparent 65%);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  pointer-events: none;
+}
+
+.providerCard:hover {
+  border-color: var(--d-accent);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px -10px rgba(0, 0, 0, 0.28);
+}
+.providerCard:hover::before { opacity: 0.5; }
+
+.providerCard:focus-visible {
+  outline: none;
+  border-color: var(--d-accent);
+  box-shadow: 0 0 0 3px var(--brand-focus-ring);
+}
+
+.providerCardSelected {
+  border-color: color-mix(in srgb, var(--d-accent) 55%, var(--d-border));
+  background:
+    linear-gradient(
+      145deg,
+      color-mix(in srgb, var(--d-accent) 13%, var(--d-surface)) 0%,
+      color-mix(in srgb, var(--d-accent) 5%, var(--d-surface)) 48%,
+      var(--d-surface) 100%
+    );
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, var(--d-accent) 18%, transparent),
+    0 12px 28px -18px color-mix(in srgb, var(--d-accent) 75%, transparent);
+  transform: translateY(-1px);
+}
+.providerCardSelected::before { opacity: 0.72; }
+
+.providerCardSelected .providerCardLogo {
+  transform: translateY(-1px) scale(1.04);
+  box-shadow:
+    0 0 0 3px color-mix(in srgb, var(--d-accent) 17%, transparent),
+    0 8px 18px -9px color-mix(in srgb, var(--d-accent) 65%, transparent);
+}
+
+.providerCardLogo {
+  position: relative;
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* Brand logos are drawn for light backgrounds — keep the tile white in both
+     themes so they stay legible. */
+  background: #fff;
+  border: 1.5px solid;
+  flex-shrink: 0;
+  overflow: hidden;
+  box-shadow: 0 2px 8px -3px rgba(0, 0, 0, 0.22);
+  transition: transform 0.2s ease;
+}
+.providerCard:hover .providerCardLogo { transform: scale(1.06); }
+
+.providerCardName {
+  position: relative;
+  font-size: 12.5px;
+  font-weight: 650;
+  letter-spacing: -0.01em;
+  color: var(--d-text-hi);
+  line-height: 1.2;
+}
+
+/* A quiet connection signal; details remain available through its tooltip and
+   the status control in the settings card. */
+.providerCardStatus {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 9px;
+  height: 9px;
+  border: 2px solid var(--d-surface);
+  border-radius: 50%;
+  background: var(--color-success);
+  box-shadow:
+    0 0 0 3px var(--color-success-bg),
+    0 0 12px color-mix(in srgb, var(--color-success) 55%, transparent);
+}
+
+/* ── Config form card ────────────────────────────────────────────────────── */
+.formCard {
+  background: var(--d-surface);
+  border: 1px solid var(--d-border);
+  border-radius: 18px;
+  padding: 24px 28px 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04), 0 12px 32px -22px rgba(0, 0, 0, 0.3);
+}
+
+.formHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.formHeaderLeft {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.formTitle {
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: -0.015em;
+  color: var(--d-text-hi);
+  margin: 0;
+}
+
+.formSubtitle {
+  font-size: 12.5px;
+  color: var(--d-text-lo);
+  margin: 0;
+}
+
+.formHeaderRight {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.formDivider {
+  height: 1px;
+  border: none;
+  background: linear-gradient(90deg, var(--d-border), transparent);
+  margin: 0 -2px;
+}
+
+/* ── Status pill ─────────────────────────────────────────────────────────── */
+.statusPillActive,
+.statusPillInactive {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 5px 12px;
+  border-radius: 20px;
+}
+.statusPillActive   { background: var(--color-success-bg); color: var(--color-success); }
+.statusPillInactive { background: var(--d-surface-hover);  color: var(--d-text-lo); }
+
+.statusDot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: currentColor;
+  flex-shrink: 0;
+}
+
+/* Gentle halo on the active dot — signals "live" without motion noise. */
+.statusPillActive .statusDot {
+  animation: pulse 2.4s ease-out infinite;
+}
+
+@keyframes pulse {
+  0%   { box-shadow: 0 0 0 0   rgba(34, 197, 94, 0.55); }
+  70%  { box-shadow: 0 0 0 6px rgba(34, 197, 94, 0); }
+  100% { box-shadow: 0 0 0 0   rgba(34, 197, 94, 0); }
+}
+
+/* ── Save button ─────────────────────────────────────────────────────────── */
+.saveBtn {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 9px 18px;
+  background: var(--brand);
+  border: none;
+  border-radius: 10px;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  font-family: var(--font-sans);
+  cursor: pointer;
+  white-space: nowrap;
+  min-width: 138px;
+  justify-content: center;
+  box-shadow: 0 4px 12px -4px rgba(0, 0, 0, 0.35);
+  transition: filter 0.18s ease, transform 0.12s ease, box-shadow 0.18s ease;
+}
+.saveBtn:hover:not(:disabled) {
+  filter: brightness(1.08);
+  transform: translateY(-1px);
+  box-shadow: 0 7px 18px -6px rgba(0, 0, 0, 0.4);
+}
+.saveBtn:active:not(:disabled) { transform: translateY(0); }
+.saveBtn:focus-visible { outline: 2px solid var(--brand-focus-ring); outline-offset: 2px; }
+.saveBtn:disabled { opacity: 0.72; cursor: wait; box-shadow: none; }
+
+.saveBtn svg { width: 14px; height: 14px; }
+
+.saveBtnFail  { background: var(--color-danger); }
+.saveBtnSaved { background: var(--color-success); }
+
+/* ── Form fields ─────────────────────────────────────────────────────────── */
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.fieldRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.fieldLabel {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--d-text-hi);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.infoIcon {
+  color: var(--d-text-lo);
+  display: flex;
+  align-items: center;
+  cursor: help;
+}
+
+.fieldInput {
+  --autofill-bg: var(--d-bg);
+  --autofill-text: var(--d-text-hi);
+  padding: 10px 13px;
+  background: var(--d-bg);
+  border: 1px solid var(--d-border);
+  border-radius: 10px;
+  color: var(--d-text-hi);
+  font-size: 13.5px;
+  font-family: var(--font-sans);
+  outline: none;
+  width: 100%;
+  box-sizing: border-box;
+  transition: border-color 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+}
+.fieldInput::placeholder { color: var(--d-text-lo); }
+.fieldInput:hover:not(:focus) { border-color: var(--d-text-lo); }
+.fieldInput:focus {
+  border-color: var(--d-accent);
+  box-shadow: 0 0 0 3px var(--brand-focus-ring);
+  background: var(--d-surface);
+}
+
+.fieldHint {
+  font-size: 11.5px;
+  line-height: 1.45;
+  color: var(--d-text-lo);
+}
+
+.secretSavedBadge {
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  padding: 2px 7px;
+  border-radius: 20px;
+  background: var(--color-success-bg);
+  color: var(--color-success);
+  text-transform: uppercase;
+}
+
+/* Secret field with eye toggle */
+.secretWrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+.secretInput { padding-right: 42px !important; }
+.eyeBtn {
+  position: absolute;
+  right: 6px;
+  width: 28px;
+  height: 28px;
+  border-radius: 7px;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  color: var(--d-text-lo);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.15s ease, background 0.15s ease;
+}
+.eyeBtn:hover { color: var(--d-text-hi); background: var(--d-surface-hover); }
+.eyeBtn:focus-visible { outline: 2px solid var(--brand-focus-ring); outline-offset: 1px; }
+
+/* ── Scopes tag input ────────────────────────────────────────────────────── */
+.scopesBox {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 34px 9px 10px;
+  background: var(--d-bg);
+  border: 1px solid var(--d-border);
+  border-radius: 10px;
+  min-height: 44px;
+  cursor: text;
+  position: relative;
+  transition: border-color 0.18s ease, box-shadow 0.18s ease;
+}
+.scopesBox:focus-within {
+  border-color: var(--d-accent);
+  box-shadow: 0 0 0 3px var(--brand-focus-ring);
+}
+
+.scopeTag {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3.5px 9px;
+  background: var(--d-accent-bg);
+  color: var(--d-accent-fg);
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 500;
+  transition: filter 0.15s ease;
+}
+.scopeTag:hover { filter: brightness(1.08); }
+
+.scopeX {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  color: var(--d-accent-fg);
+  font-size: 14px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  opacity: 0.6;
+  transition: opacity 0.15s ease;
+}
+.scopeX:hover { opacity: 1; }
+
+.scopeInput {
+  border: none;
+  background: none;
+  outline: none;
+  color: var(--d-text-hi);
+  font-size: 13px;
+  font-family: var(--font-sans);
+  min-width: 90px;
+  flex: 1;
+}
+.scopeInput::placeholder { color: var(--d-text-lo); }
+
+.scopeChevron {
+  position: absolute;
+  right: 11px;
+  color: var(--d-text-lo);
+  display: flex;
+  align-items: center;
+  pointer-events: none;
+}
+
+/* ── Auto-generated URLs ─────────────────────────────────────────────────── */
+.generatedSection {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.generatedLabel {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: var(--d-text-lo);
+  text-transform: uppercase;
+}
+
+.generatedFields {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.generatedField {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.generatedFieldLabel {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--d-text-md);
+}
+
+/* Read-only values get a tinted, dashed surface so they're visibly not
+   editable — the previous solid box read as another input. */
+.generatedRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 13px;
+  background: var(--d-surface-hover);
+  border: 1px dashed var(--d-border);
+  border-radius: 10px;
+  transition: border-color 0.18s ease;
+}
+.generatedRow:hover { border-color: var(--d-text-lo); }
+
+.generatedUrl {
+  flex: 1;
+  font-size: 12.5px;
+  font-family: var(--font-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+  color: var(--d-text-hi);
+  word-break: break-all;
+  min-width: 0;
+}
+
+.generatedUrlEmpty {
+  color: var(--d-text-lo);
+  font-family: var(--font-sans);
+  font-size: 12.5px;
+  font-style: italic;
+}
+
+.copyBtn {
+  flex-shrink: 0;
+  padding: 5px 11px;
+  font-size: 11.5px;
+  font-weight: 600;
+  font-family: var(--font-sans);
+  border: 1px solid var(--d-border);
+  border-radius: 8px;
+  background: var(--d-surface);
+  color: var(--d-text-md);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+.copyBtn:hover:not(:disabled) {
+  background: var(--d-accent-bg);
+  border-color: var(--d-accent);
+  color: var(--d-accent-fg);
+}
+.copyBtn:focus-visible { outline: 2px solid var(--brand-focus-ring); outline-offset: 1px; }
+.copyBtn:disabled { opacity: 0.4; cursor: default; }
+
+/* ── Disconnect ──────────────────────────────────────────────────────────── */
+.disconnectSection {
+  display: flex;
+  align-items: flex-start;
+  width: 100%;
+}
+
+.disconnectConfirm {
+  display: flex;
+  flex-direction: column;
+  gap: 11px;
+  padding: 14px 16px;
+  border-radius: 12px;
+  background: var(--color-danger-bg);
+  border: 1px solid var(--color-danger-border, var(--color-danger));
+  width: 100%;
+}
+
+.disconnectWarning {
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--color-danger);
+  margin: 0;
+}
+
+.disconnectActions {
+  display: flex;
+  gap: 8px;
+}
+
+/* Themed rather than hardcoded light hex values — the old #fef2f2 / #fca5a5
+   pair rendered as a glaring light block in dark mode. */
+.disconnectBtn {
+  padding: 8px 15px;
+  font-size: 12.5px;
+  font-weight: 600;
+  border-radius: 9px;
+  border: 1px solid var(--color-danger-border, var(--color-danger));
+  background: var(--color-danger-bg);
+  color: var(--color-danger);
+  cursor: pointer;
+  font-family: var(--font-sans);
+  transition: background 0.15s ease, color 0.15s ease;
+}
+.disconnectBtn:hover:not(:disabled) {
+  background: var(--color-danger);
+  color: #fff;
+}
+.disconnectBtn:focus-visible {
+  outline: 2px solid var(--color-danger-ring, var(--color-danger));
+  outline-offset: 2px;
+}
+.disconnectBtn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.disconnectCancelBtn {
+  padding: 8px 15px;
+  font-size: 12.5px;
+  font-weight: 500;
+  border-radius: 9px;
+  border: 1px solid var(--d-border);
+  background: transparent;
+  color: var(--d-text-md);
+  cursor: pointer;
+  font-family: var(--font-sans);
+  transition: background 0.15s ease;
+}
+.disconnectCancelBtn:hover { background: var(--d-surface-hover); }
+.disconnectCancelBtn:focus-visible { outline: 2px solid var(--brand-focus-ring); outline-offset: 2px; }
+
+/* ── Responsive ──────────────────────────────────────────────────────────── */
+@media (max-width: 900px) {
+  .providerPicker { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 620px) {
+  .fieldRow        { grid-template-columns: 1fr; }
+  .formCard        { padding: 20px 18px 22px; border-radius: 14px; }
+  .formHeader      { align-items: flex-start; }
+  .formHeaderRight { width: 100%; justify-content: space-between; }
+}
+
+/* Respect users who've asked the OS to limit motion. */
+@media (prefers-reduced-motion: reduce) {
+  .providerCard,
+  .providerCardLogo,
+  .saveBtn { transition: none; }
+  .providerCard:hover { transform: none; }
+  .providerCard:hover .providerCardLogo { transform: none; }
+  .saveBtn:hover:not(:disabled) { transform: none; }
+  .statusPillActive .statusDot { animation: none; }
+}

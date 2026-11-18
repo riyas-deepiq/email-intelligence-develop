@@ -1,0 +1,2029 @@
+/* Shared styles for all dashboard view pages. */
+
+/* ── Page wrapper ──────────────────────────────────────────────────────────── */
+/* No top/side padding here — the dashboard's .content wrapper already pads every
+   view uniformly, so adding more here would double up and shift this page's
+   gap below the topbar out of sync with the rest of the app. */
+.page {
+  width: 100%;
+  max-width: none;
+  min-width: 0;
+  margin-inline: auto;
+  animation: fadeInUp 0.28s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* Gmail-style table toolbar spacing */
+.tableToolbar { margin-bottom: 12px; }
+
+/* ── User details popup (modal) ────────────────────────────────────────────── */
+.modalOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: rgba(3, 7, 18, 0.55);
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
+  overflow: hidden;
+  animation: fadeIn 0.16s ease both;
+}
+
+.modalPanel {
+  width: 100%;
+  max-width: 900px;
+  min-height: 0;
+  max-height: calc(100dvh - 48px);
+  display: flex;
+  flex-direction: column;
+  background: var(--surface);
+  border: 1px solid var(--bdr);
+  border-radius: 16px;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.28), 0 4px 12px rgba(0, 0, 0, 0.14);
+  overflow: hidden;
+  animation: modalPop 0.2s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* Search box inside the modal filter row (soft filled pill, no nested border). */
+.modalSearch {
+  flex: 1;
+  min-width: 160px;
+  max-width: 360px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 36px;
+  padding: 0 12px;
+  border-radius: 999px;
+  /* Bordered near-white fill so the field is visible against the cream canvas
+     in light mode (was a borderless surface-2 pill that blended in). */
+  border: 1px solid var(--bdr);
+  background: var(--surface);
+  color: var(--text-3);
+  transition: border-color 0.15s, box-shadow 0.15s, background 0.15s;
+}
+.modalSearch:hover { border-color: var(--text-3); }
+.modalSearch:focus-within {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--brand-focus-ring);
+}
+.modalSearchInput {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: 13px;
+  font-family: inherit;
+  color: var(--text);
+}
+.modalSearchInput::placeholder { color: var(--text-3); }
+
+/* Wide popup for the full thread detail. */
+.threadModalPanel {
+  position: relative;
+  width: 100%;
+  max-width: 1120px;
+  min-height: 0;
+  max-height: calc(100dvh - 48px);
+  display: flex;
+  flex-direction: column;
+  background: var(--bg);
+  border: 1px solid var(--bdr);
+  border-radius: 16px;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.30), 0 4px 12px rgba(0, 0, 0, 0.16);
+  overflow: hidden;
+  animation: modalPop 0.2s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.threadModalBody {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 16px 20px 20px;
+}
+
+@keyframes modalPop {
+  from { opacity: 0; transform: translateY(10px) scale(0.98); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.modalHead {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 18px 20px;
+  border-bottom: 1px solid var(--bdr-2);
+  flex-shrink: 0;
+}
+
+.modalClose {
+  flex-shrink: 0;
+  width: 30px;
+  height: 30px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: none;
+  border-radius: 8px;
+  color: var(--text-3);
+  cursor: pointer;
+  transition: background 0.12s, color 0.12s;
+}
+.modalClose:hover { background: var(--surface-2); color: var(--text); }
+
+.statChips {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+}
+.statChip { font-size: 12px; color: var(--text-3); }
+.statChip strong { color: var(--text); font-weight: 700; margin-right: 4px; }
+
+.modalFilter {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding: 12px 20px;
+  border-bottom: 1px solid var(--bdr-2);
+  flex-shrink: 0;
+}
+
+.modalFilter .modalSearch {
+  order: 2;
+}
+
+.modalFilter > .muted {
+  order: 1;
+  margin-left: auto !important;
+}
+
+.modalFilter > :last-child {
+  order: 3;
+}
+
+.modalBody {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 8px 12px;
+}
+
+.modalRow {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 11px 12px;
+  border: none;
+  background: none;
+  border-radius: 10px;
+  cursor: pointer;
+  text-align: left;
+  font-family: inherit;
+  color: var(--text);
+  transition: background 0.1s;
+}
+.modalRow:hover { background: var(--surface-2); }
+
+.modalFoot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 20px;
+  border-top: 1px solid var(--bdr-2);
+  flex-shrink: 0;
+  flex-wrap: wrap;
+}
+
+/* ── Card ──────────────────────────────────────────────────────────────────── */
+.attachmentWizardPanel {
+  width: min(980px, 100%);
+  min-height: 0;
+  max-height: calc(100dvh - 48px);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--surface);
+  border: 1px solid var(--bdr);
+  border-radius: 16px;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.28), 0 4px 12px rgba(0, 0, 0, 0.14);
+  animation: modalPop 0.2s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.attachmentWizardIcon {
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  background: var(--accent-bg);
+  color: var(--accent);
+}
+
+.attachmentWizardTitle {
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--text-3);
+}
+
+.attachmentWizardName {
+  margin-top: 3px;
+  color: var(--text);
+  font-size: 17px;
+  font-weight: 800;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+}
+
+.attachmentWizardMeta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+  font-size: 12px;
+  color: var(--text-3);
+}
+
+.attachmentWizardBody {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 16px 20px 18px;
+}
+
+.attachmentDetailGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.attachmentDetailItem,
+.attachmentSourceBox {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 7px 10px;
+  border: 1px solid var(--bdr-2);
+  border-radius: 8px;
+  background: var(--surface-2);
+}
+
+.attachmentDetailLabel {
+  color: var(--text-3);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+}
+
+.attachmentDetailValue {
+  min-width: 0;
+  color: var(--text);
+  font-size: 12.5px;
+  font-weight: 650;
+  overflow-wrap: anywhere;
+}
+
+.attachmentSourceBox { margin-top: 8px; }
+
+.attachmentPreviewBox {
+  margin-top: 12px;
+  border: 1px solid var(--bdr-2);
+  border-radius: 12px;
+  overflow: hidden;
+  background: var(--surface);
+}
+
+.attachmentPreviewHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--bdr-2);
+  background: var(--surface-2);
+}
+
+.attachmentPreviewFrame {
+  display: block;
+  width: 100%;
+  height: min(54vh, 560px);
+  border: 0;
+  background: #fff;
+}
+
+.attachmentPreviewImageWrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 320px;
+  max-height: min(54vh, 560px);
+  padding: 16px;
+  overflow: auto;
+  background: var(--surface-2);
+}
+
+.attachmentPreviewImage {
+  max-width: 100%;
+  max-height: 520px;
+  object-fit: contain;
+  border-radius: 8px;
+}
+
+.attachmentPreviewText {
+  min-height: 320px;
+  max-height: min(54vh, 560px);
+  margin: 0;
+  padding: 16px;
+  overflow: auto;
+  background: var(--surface);
+  color: var(--text);
+  font: 12.5px/1.55 ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.attachmentPreviewEmpty {
+  min-height: 260px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 24px;
+  color: var(--text-3);
+  font-size: 13px;
+  text-align: center;
+}
+
+.attachmentActions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.attachmentError {
+  margin-top: 10px;
+  color: var(--danger);
+  font-size: 12.5px;
+  font-weight: 600;
+}
+
+.attachmentRow { cursor: pointer !important; }
+
+.attachmentRow:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+}
+
+@media (max-width: 640px) {
+  .attachmentDetailGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .attachmentActions,
+  .attachmentWizardPanel .modalFoot {
+    align-items: stretch;
+    flex-direction: column;
+  }
+}
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--bdr);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  animation: fadeInUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) both;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  box-shadow: var(--card-shadow);
+}
+
+.card:hover {
+  border-color: color-mix(in srgb, var(--brand) 24%, var(--bdr));
+  box-shadow: var(--card-shadow-hover);
+}
+
+.cardBody {
+  padding: 16px 20px;
+}
+
+/* ── Card stagger ──────────────────────────────────────────────────────────── */
+.card:nth-child(1) { animation-delay: 40ms;  }
+.card:nth-child(2) { animation-delay: 80ms;  }
+.card:nth-child(3) { animation-delay: 120ms; }
+.card:nth-child(4) { animation-delay: 160ms; }
+.card:nth-child(5) { animation-delay: 200ms; }
+.card:nth-child(6) { animation-delay: 240ms; }
+
+/* ── Stat grid (KPI row) ───────────────────────────────────────────────────── */
+.statGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+@media (max-width: 900px) {
+  .statGrid { grid-template-columns: repeat(2, 1fr); }
+}
+
+/* ── Page header ───────────────────────────────────────────────────────────── */
+.pageHead {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.pageHeadTitle {
+  font-family: var(--font-display);
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--text);
+  margin: 0;
+  letter-spacing: -0.02em;
+}
+
+.pageHeadSub {
+  font-size: 12.5px;
+  color: var(--text-3);
+  margin: 2px 0 0;
+}
+
+.pageHeadRight {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  flex-wrap: wrap;
+  min-width: 280px;
+  margin-left: auto;
+}
+
+
+/* ── Filter chips ──────────────────────────────────────────────────────────── */
+.chips {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.chip {
+  min-height: 36px;
+  padding: 6px 13px;
+  border-radius: 99px;
+  border: 1px solid var(--bdr);
+  background: transparent;
+  color: var(--text-2);
+  font-size: 12.5px;
+  font-weight: 500;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.12s, color 0.12s, border-color 0.12s;
+  white-space: nowrap;
+}
+
+.chip:hover { background: var(--surface-2); }
+
+.chipActive {
+  background: var(--accent-bg);
+  color: var(--accent-ink);
+  border-color: transparent;
+}
+
+/* ── Table ─────────────────────────────────────────────────────────────────── */
+.tableWrap {
+  overflow-x: auto;
+}
+
+.tbl {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.tbl thead th {
+  padding: 10px 16px;
+  text-align: left;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  color: var(--text-3);
+  border-bottom: 1px solid var(--bdr);
+  white-space: nowrap;
+  background: var(--surface-2);
+}
+
+.tbl tbody tr {
+  border-bottom: 1px solid var(--bdr-2);
+  transition: background 0.1s;
+  cursor: pointer;
+}
+
+.tbl tbody tr:last-child { border-bottom: none; }
+.tbl tbody tr:hover { background: var(--surface-2); }
+
+.tbl td {
+  padding: 11px 16px;
+  color: var(--text-2);
+  vertical-align: middle;
+}
+
+.tbl .numCol { text-align: right; }
+
+/* ── Cell helpers ──────────────────────────────────────────────────────────── */
+.cellName {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.subj {
+  font-weight: 600;
+  color: var(--text);
+  font-size: 13px;
+}
+
+.t2 { color: var(--text-2); }
+.muted { color: var(--text-3); font-size: 12.5px; }
+.mono  { font-family: var(--font-mono); font-size: 12px; }
+.tnum  { font-variant-numeric: tabular-nums; }
+
+/* ── Buttons ───────────────────────────────────────────────────────────────── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 40px;
+  padding: 8px 14px;
+  border-radius: 10px;
+  border: 1px solid var(--bdr);
+  background: var(--surface);
+  color: var(--text-2);
+  font-size: 12.5px;
+  font-weight: 500;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.12s, border-color 0.12s, box-shadow 0.12s;
+  white-space: nowrap;
+}
+
+.btn:hover { background: var(--surface-2); }
+
+/* The table search pill now lives in the shared <SearchField> component
+   (styles/shared/components/ui/SearchField.module.css). Only the small
+   .searchClear button below is still used — by the compact .modalSearch
+   clear controls in EmailsView / ThreadsView. */
+.searchClear {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--text-3);
+  cursor: pointer;
+  border-radius: 50%;
+  transition: color 0.12s, background 0.12s;
+}
+.searchClear:hover { color: var(--text); background: color-mix(in srgb, var(--text) 12%, transparent); }
+
+.btnPrimary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+  box-shadow: 0 1px 4px rgba(79, 70, 229, 0.25);
+}
+
+.btnPrimary:hover {
+  opacity: 0.9;
+  box-shadow: 0 2px 8px rgba(79, 70, 229, 0.35);
+}
+
+.iconBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: 1px solid var(--bdr);
+  background: transparent;
+  color: var(--text-3);
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.12s;
+}
+
+.iconBtn:hover { background: var(--surface-2); color: var(--text); }
+
+.linkMini {
+  background: none;
+  border: none;
+  color: var(--accent);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 0;
+  font-family: inherit;
+}
+
+/* ── Two / three column grids ──────────────────────────────────────────────── */
+.cols2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.cols3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+.colsMain {
+  display: grid;
+  grid-template-columns: 1fr 340px;
+  gap: 16px;
+}
+
+@media (max-width: 900px) {
+  .cols2, .cols3, .colsMain { grid-template-columns: 1fr; }
+}
+
+/* ── Feed item ─────────────────────────────────────────────────────────────── */
+.feedItem {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 10px;
+  margin: 0 -10px;
+  border-radius: 8px;
+  border-bottom: 1px solid var(--bdr-2);
+  animation: fadeInUp 0.25s ease both;
+  transition: background 0.12s;
+}
+.feedItem:hover { background: var(--surface-2); border-bottom-color: transparent; }
+
+.feedItem:nth-child(1) { animation-delay: 50ms;  }
+.feedItem:nth-child(2) { animation-delay: 100ms; }
+.feedItem:nth-child(3) { animation-delay: 150ms; }
+.feedItem:nth-child(4) { animation-delay: 200ms; }
+.feedItem:nth-child(5) { animation-delay: 250ms; }
+
+.feedItem:last-child { border-bottom: none; }
+
+.feedIcon {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+/* ── KV row (key–value pair) ───────────────────────────────────────────────── */
+.kvRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 9px 0;
+  border-bottom: 1px solid var(--bdr-2);
+  font-size: 13px;
+  gap: 12px;
+}
+
+.kvRow:last-child { border-bottom: none; }
+
+.kvKey { color: var(--text-3); font-size: 12.5px; }
+.kvVal { color: var(--text); font-weight: 500; text-align: right; }
+
+/* ── Filetag (PDF / DOCX etc.) ─────────────────────────────────────────────── */
+.filetag {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px 6px;
+  border-radius: 5px;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: .04em;
+  color: #fff;
+  flex-shrink: 0;
+  background: #64748b; /* fallback for extensions without a dedicated color */
+}
+
+.filetag[data-t="PDF"]  { background: var(--danger); }
+.filetag[data-t="XLSX"] { background: var(--ok); }
+.filetag[data-t="PPTX"] { background: #ea580c; }
+.filetag[data-t="DOCX"] { background: #2563eb; }
+
+/* ── Permission cell ───────────────────────────────────────────────────────── */
+.pcell {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+}
+
+.pcellYes { background: var(--ok-bg);     color: var(--ok); }
+.pcellNo  { background: var(--surface-2); color: var(--text-3); }
+
+/* ── Empty state ───────────────────────────────────────────────────────────── */
+.emptyState {
+  padding: 48px 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-3);
+  text-align: center;
+}
+
+.emptyIcon {
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  background: var(--surface-2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-3);
+  margin-bottom: 4px;
+}
+
+/* ── AI summary block ──────────────────────────────────────────────────────── */
+.aiSummary {
+  background: var(--accent-bg);
+  border: 1px solid color-mix(in srgb, var(--accent) 25%, transparent);
+  border-radius: 12px;
+  padding: 14px 16px;
+}
+
+.aiSummaryHead {
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* ── Gap helpers ───────────────────────────────────────────────────────────── */
+.mb12 { margin-bottom: 12px; }
+.mb16 { margin-bottom: 16px; }
+.mb24 { margin-bottom: 24px; }
+
+/* ── Legend row ────────────────────────────────────────────────────────────── */
+.legend { display: flex; flex-direction: column; gap: 6px; }
+
+.legendRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12.5px;
+  color: var(--text-2);
+}
+
+.legendSwatch {
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+
+.legendVal {
+  margin-left: auto;
+  font-weight: 600;
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── Gap helpers (extended) ────────────────────────────────────────────────── */
+.mb20 { margin-bottom: 20px; }
+.mt4  { margin-top: 4px; }
+.mt2  { margin-top: 2px; }
+.flex1 { flex: 1; }
+.mlAuto { margin-left: auto; }
+.capitalize { text-transform: capitalize; }
+.noWrap { white-space: nowrap; }
+.cursorDefault { cursor: default !important; }
+.fs12 { font-size: 12px; }
+.fs11 { font-size: 11px; }
+.fw600 { font-weight: 600; color: var(--text); }
+
+/* ── Threads view ──────────────────────────────────────────────────────────── */
+.threadList { display: flex; flex-direction: column; gap: 16px; }
+
+.threadHeader {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+
+.threadIcon {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: var(--accent-bg);
+  color: var(--accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.threadMeta { flex: 1; min-width: 200px; }
+
+.threadName { font-weight: 700; font-size: 15px; color: var(--text); }
+
+.aiSummarySpaced { margin-bottom: 14px; }
+
+.aiSummaryBody { margin: 0; font-size: 13.5px; line-height: 1.6; color: var(--text); }
+
+.sectionLabel {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  color: var(--text-3);
+  margin-bottom: 8px;
+}
+
+.actionRow {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 6px 0;
+  font-size: 13px;
+}
+
+.warnIcon { color: var(--warn); flex-shrink: 0; }
+
+/* ── AI Summaries view ─────────────────────────────────────────────────────── */
+.summaryCenterGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 340px;
+  gap: 16px;
+  align-items: start;
+}
+
+.summaryList { display: flex; flex-direction: column; gap: 12px; padding-top: 16px; }
+
+.summaryItem {
+  width: 100%;
+  border: 1px solid var(--bdr);
+  border-radius: 12px;
+  padding: 16px;
+  cursor: pointer;
+  transition: background 0.12s, box-shadow 0.12s;
+  background: var(--surface);
+  font-family: inherit;
+  text-align: left;
+}
+
+.summaryItem:hover {
+  background: var(--surface-2);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.07);
+}
+
+.summaryItemActive {
+  background: var(--accent-bg);
+  border-color: color-mix(in srgb, var(--accent) 35%, var(--bdr));
+}
+
+.summaryItemHead {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 9px;
+  flex-wrap: wrap;
+}
+
+.accentIcon  { color: var(--accent); }
+.violetIcon  { color: var(--violet, #7c3aed); }
+
+.summarySubject { font-size: 13.5px; font-weight: 600; color: var(--text); }
+
+.summaryMetaLine {
+  display: block;
+  margin-top: 5px;
+  color: var(--text-3);
+  font-size: 12px;
+  line-height: 1.35;
+}
+
+.summaryBody { margin: 0 0 10px; font-size: 13px; line-height: 1.55; }
+
+.summaryThreadList {
+  max-height: min(620px, calc(100vh - 220px));
+  overflow-y: auto;
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.summaryStatus {
+  margin-left: auto;
+  color: var(--text-3);
+  font-size: 11px;
+  font-weight: 650;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.summaryError {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border: 1px solid color-mix(in srgb, var(--danger) 25%, var(--bdr));
+  border-radius: 8px;
+  background: var(--danger-bg);
+  color: var(--danger);
+  font-size: 13px;
+  font-weight: 650;
+}
+
+.emptyTitle {
+  margin: 0;
+  color: var(--text);
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.emptyText {
+  margin: 0;
+  max-width: 360px;
+  color: var(--text-3);
+  font-size: 12.5px;
+  line-height: 1.5;
+}
+
+.entityRow { display: flex; gap: 7px; flex-wrap: wrap; align-items: center; }
+
+.entityLabel {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  margin-right: 4px;
+  color: var(--text-3);
+}
+
+@media (max-width: 900px) {
+  .summaryCenterGrid { grid-template-columns: 1fr; }
+  .summaryThreadList { max-height: none; }
+}
+
+/* ── Alerts view ───────────────────────────────────────────────────────────── */
+.alertStatCard {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border-radius: 12px;
+}
+
+.alertStatIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 9px;
+  flex-shrink: 0;
+}
+
+.alertStatBody { min-width: 0; }
+
+.alertCount {
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+  line-height: 1.2;
+}
+
+.alertStatLabel {
+  font-size: 11px;
+  color: var(--text-3);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.alertItemContent { flex: 1; }
+
+.alertItemHead {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 3px;
+  flex-wrap: wrap;
+}
+
+.alertTitle { font-weight: 700; font-size: 13.5px; color: var(--text); }
+
+.alertItemEnd {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  align-items: flex-end;
+  flex-shrink: 0;
+}
+
+/* ── Monitoring view ───────────────────────────────────────────────────────── */
+.svcList { padding-top: 8px; padding-bottom: 8px; }
+
+.svcRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 0;
+  border-bottom: 1px solid var(--bdr-2);
+}
+
+.svcRow:last-child { border-bottom: none; }
+
+.svcInfo { flex: 1; }
+
+.svcName { font-weight: 600; font-size: 13px; color: var(--text); }
+
+.svcMeta { text-transform: capitalize; }
+
+.colorDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+.statusDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* ── Audit log view ────────────────────────────────────────────────────────── */
+.filterBar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 16px;
+  padding: 14px 16px;
+  background: var(--surface);
+  border: 1px solid var(--bdr);
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.filterInput {
+  --autofill-bg: var(--surface-2);
+  --autofill-text: var(--text);
+  flex: 1 1 160px;
+  min-width: 140px;
+  padding: 7px 11px;
+  border: 1.5px solid var(--bdr);
+  border-radius: 8px;
+  background: var(--surface-2);
+  color: var(--text);
+  font-size: 13px;
+  font-family: inherit;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.filterInput:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--brand-focus-ring); }
+
+.filterSelect {
+  flex: 1 1 140px;
+  min-width: 130px;
+  padding: 7px 11px;
+  border: 1.5px solid var(--bdr);
+  border-radius: 8px;
+  background: var(--surface-2);
+  color: var(--text);
+  font-size: 13px;
+  font-family: inherit;
+  outline: none;
+}
+
+/* Fixed sizing for Combobox filters — the Combobox already renders its own
+   box (border/background/padding), so only constrain its flex sizing here
+   to keep it a consistent width regardless of the selected option's label. */
+.filterCombobox {
+  flex: 0 0 170px;
+  min-width: 170px;
+}
+
+/* Compact page-size picker (25/50/100) — narrow, no flex-grow, sits inline with text. */
+.pageSizeCombobox {
+  flex: 0 0 92px;
+  min-width: 92px;
+}
+
+.auditIconCell {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pagination {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.actorName { font-weight: 500; font-size: 13px; color: var(--text); }
+.entityId  { font-size: 11px; color: var(--text-3); }
+.textDanger { color: var(--danger); }
+
+/* ── User overview view ────────────────────────────────────────────────────── */
+.welcomeSection { margin-bottom: 20px; }
+
+.welcomeTitle {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--text);
+  letter-spacing: -.02em;
+}
+
+.welcomeSub { margin-top: 4px; }
+
+.quickSearch {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 11px 16px;
+  background: var(--surface);
+  border: 1.5px solid var(--bdr);
+  border-radius: 12px;
+  margin-bottom: 20px;
+  cursor: pointer;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  text-decoration: none;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.quickSearch:hover {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--brand-focus-ring);
+}
+
+.quickSearchPlaceholder { color: var(--text-3); font-size: 13.5px; flex: 1; }
+
+.kbdShortcut {
+  background: var(--surface-2);
+  border: 1px solid var(--bdr);
+  border-radius: 6px;
+  padding: 2px 7px;
+  font-size: 11px;
+  color: var(--text-3);
+  font-family: inherit;
+}
+
+.unreadDot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--accent);
+  flex-shrink: 0;
+  display: inline-block;
+}
+
+.truncSubj {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 220px;
+}
+
+.feedContent { flex: 1; font-size: 13px; }
+.feedWho { font-weight: 600; color: var(--text); }
+
+/* ── Roles view ────────────────────────────────────────────────────────────── */
+.roleGrid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+@media (max-width: 1100px) { .roleGrid { grid-template-columns: repeat(3, 1fr); } }
+@media (max-width: 700px)  { .roleGrid { grid-template-columns: repeat(2, 1fr); } }
+
+.roleCard {
+  padding: 16px 20px;
+  text-align: left;
+  cursor: pointer;
+  display: block;
+  background: var(--surface);
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.roleCard:hover {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.09);
+  border-color: var(--d-hover-border);
+}
+
+.roleCardIcon {
+  width: 32px;
+  height: 32px;
+  border-radius: 9px;
+  background: var(--accent-bg);
+  color: var(--accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 8px;
+}
+
+.roleCount {
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+  margin: 2px 0;
+}
+
+/* ── Wider td max widths ───────────────────────────────────────────────────── */
+.tdWide { max-width: 260px; }
+.tdFrom { font-size: 12.5px; white-space: nowrap; }
+
+/* ── Grouped email rows ────────────────────────────────────────────────────── */
+.groupRow {
+  background: var(--surface);
+  border-bottom: 1px solid var(--bdr);
+  transition: background 0.1s;
+}
+
+.groupRow:hover { background: var(--surface-2); }
+
+.chevron {
+  display: inline-block;
+  font-size: 14px;
+  color: var(--text-3);
+  width: 14px;
+  line-height: 1;
+  transition: transform 0.18s ease;
+  flex-shrink: 0;
+}
+
+.subRow {
+  background: var(--surface-2);
+  border-bottom: 1px solid var(--bdr-2);
+  transition: background 0.1s;
+}
+
+.subRow:hover { background: color-mix(in srgb, var(--accent) 5%, var(--surface-2)); }
+
+.subRow td { padding-top: 9px; padding-bottom: 9px; }
+
+/* ── Thread detail ─────────────────────────────────────────────────────────── */
+.threadDetailGrid {
+  display: grid;
+  grid-template-columns: 1fr 340px;
+  gap: 16px;
+  align-items: start;
+}
+
+@media (max-width: 1000px) {
+  .threadDetailGrid { grid-template-columns: 1fr; }
+}
+
+.msgList { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+
+.msgHead {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: nowrap;
+}
+
+.msgFromTo {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.msgFrom {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  min-width: 0;
+  overflow: hidden;
+  color: var(--text);
+  font-size: 13.5px;
+  white-space: nowrap;
+}
+
+.msgSender {
+  min-width: 0;
+  max-width: 42%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 700;
+}
+
+.msgArrow {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 500;
+  color: var(--text-3);
+  font-size: 12.5px;
+}
+
+.msgCc {
+  flex: 0 1 auto;
+  max-width: 34%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  padding: 2px 7px;
+  border-radius: 999px;
+  background: var(--surface-2);
+  border: 1px solid var(--bdr-2);
+  color: var(--text-3);
+  font-size: 11.5px;
+  font-weight: 600;
+}
+
+.msgTo { font-size: 12px; color: var(--text-3); margin-top: 1px; }
+
+/* ── Primary attachment card ───────────────────────────────────────────────── */
+.attachPreview {
+  background: var(--surface-2);
+  border-radius: 12px;
+  padding: 24px;
+  display: flex;
+  justify-content: center;
+  margin-bottom: 12px;
+}
+
+.attachDoc {
+  width: 86px;
+  height: 110px;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.14);
+  padding: 13px 11px;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.attachDocBar {
+  height: 8px;
+  border-radius: 4px;
+  background: var(--danger);
+  width: 62%;
+}
+
+.attachDocLine {
+  height: 5px;
+  border-radius: 3px;
+  background: #dde1ea;
+}
+
+.msgBody {
+  margin-top: 10px;
+  padding: 12px 14px;
+  background: var(--surface-2);
+  border: 1px solid var(--bdr-2);
+  border-radius: 9px;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--text-2);
+  white-space: pre-wrap;
+  overflow-wrap: break-word;
+  max-height: 420px;
+  overflow-y: auto;
+  cursor: auto;
+}
+
+.attachChip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 10px;
+  padding: 6px 10px;
+  border: 1px solid var(--bdr);
+  border-radius: 8px;
+  font-size: 12px;
+  color: var(--text-2);
+  background: var(--surface-2);
+}
+
+.actionChip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 99px;
+  background: color-mix(in srgb, var(--warn) 13%, transparent);
+  color: var(--warn);
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.factChip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 11px;
+  border-radius: 8px;
+  border: 1px solid var(--bdr);
+  background: var(--surface-2);
+  color: var(--text-3);
+  font-size: 12px;
+}
+
+.factChip strong { color: var(--text); font-weight: 600; }
+
+/* Role management */
+.rolesHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+.rolesTitle { margin: 0; font-size: 18px; font-weight: 800; color: var(--text); }
+.rolesSub { margin: 3px 0 0; font-size: 12.5px; color: var(--text-3); }
+.rolesLayout { display: grid; grid-template-columns: minmax(260px, 320px) minmax(0, 1fr); gap: 14px; align-items: start; }
+.rolesListCard,
+.roleEditorCard,
+.roleAssignCard {
+  background: var(--surface);
+  border: 1px solid var(--bdr);
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+.rolesListCard { padding: 12px; }
+.roleEditorCard { padding: 16px; }
+.roleAssignCard { padding: 16px; margin-top: 12px; }
+
+/* Title + assign controls on one row. Was two stacked blocks with a combined
+   ~26px of margin, which read as a large empty band above the table. */
+.roleAssignHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+.roleAssignTitle { margin: 2px 0 0; font-size: 15px; font-weight: 800; color: var(--text); }
+.rolesListHead {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  padding: 2px 2px 12px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--text-3);
+}
+
+/* Count as a pill rather than a lone number floated to the right — reads as
+   part of the "Roles" label now that the New role button owns that corner. */
+.rolesCountPill {
+  display: inline-block;
+  margin-left: 6px;
+  padding: 1px 7px;
+  border-radius: 20px;
+  background: var(--surface-2);
+  color: var(--text-2);
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0;
+  vertical-align: middle;
+}
+.rolesList { display: flex; flex-direction: column; gap: 6px; }
+.roleListItem {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px;
+  border: 1px solid transparent;
+  border-radius: 9px;
+  background: transparent;
+  color: var(--text);
+  text-align: left;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.12s, border-color 0.12s;
+}
+.roleListItem:hover { background: var(--surface-2); }
+.roleListItem:focus-visible { outline: 2px solid var(--accent); outline-offset: -1px; }
+
+/* Selected row gets an accent rail as well as a tint — the tint alone was easy
+   to miss against the card background. */
+.roleListItemActive {
+  position: relative;
+  background: var(--accent-bg);
+  border-color: color-mix(in srgb, var(--accent) 35%, transparent);
+}
+.roleListItemActive::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 9px;
+  bottom: 9px;
+  width: 3px;
+  border-radius: 0 3px 3px 0;
+  background: var(--accent);
+}
+.roleListItemActive .roleListName { color: var(--accent); }
+.roleListIcon {
+  width: 30px;
+  height: 30px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  background: var(--surface-2);
+  color: var(--accent);
+  flex-shrink: 0;
+}
+.roleListBody { min-width: 0; flex: 1; display: flex; flex-direction: column; gap: 2px; }
+.roleListName { font-size: 13px; font-weight: 700; color: var(--text); }
+.roleListMeta { font-size: 11.5px; color: var(--text-3); }
+.roleSystemPill {
+  font-size: 10px;
+  font-weight: 800;
+  color: var(--accent);
+  background: var(--accent-bg);
+  padding: 2px 6px;
+  border-radius: 999px;
+  flex-shrink: 0;
+}
+.roleEditorHead { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 14px; }
+.roleEditorKicker { font-size: 11px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: var(--text-3); }
+.roleEditorTitle { margin: 3px 0 0; font-size: 16px; font-weight: 800; color: var(--text); }
+.roleFormGrid { display: grid; grid-template-columns: minmax(180px, 1fr) 180px; gap: 10px; margin-bottom: 16px; }
+.roleField { display: flex; flex-direction: column; gap: 6px; font-size: 12px; font-weight: 700; color: var(--text-2); }
+.roleNameField { max-width: 300px; }
+.roleFieldWide { grid-column: 1 / -1; }
+.roleField .filterInput { flex: 0 0 auto; min-width: 0; max-width: none; width: 100%; background: var(--surface-2); }
+.roleCombobox { width: 100%; }
+.permissionMatrix { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; align-items: start; }
+.permissionColumn { display: flex; min-width: 0; flex-direction: column; gap: 12px; }
+/* Bar above the matrix: section label + expand/collapse-all. */
+.permissionBar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 2px;
+}
+.permissionBarLabel {
+  flex: 1;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--text-3);
+}
+.permissionBarBtn {
+  border: none;
+  background: none;
+  padding: 3px 6px;
+  border-radius: 6px;
+  color: var(--accent);
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .03em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.permissionBarBtn:hover { background: color-mix(in srgb, var(--accent) 12%, transparent); }
+.permissionBarBtn:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+.permissionGroup {
+  border: 1px solid var(--bdr);
+  border-radius: 12px;
+  overflow: hidden;
+  background: var(--surface);
+  transition: border-color 0.18s, box-shadow 0.18s;
+}
+.permissionGroup:hover { border-color: var(--bdr-2); box-shadow: 0 4px 14px -10px rgba(0,0,0,.35); }
+
+.permissionGroupTitle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 11px;
+  border-bottom: 1px solid var(--bdr-2);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--text-3);
+  background: var(--surface-2);
+}
+/* When collapsed the header is the whole card, so drop its bottom divider. */
+.permissionGroupCollapsed .permissionGroupTitle { border-bottom: none; }
+
+/* The category name + chevron form the accordion toggle, filling the row so
+   the whole header (not just the small chevron) is clickable. */
+.permGroupToggleBtn {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+  font: inherit;
+  letter-spacing: inherit;
+  text-transform: inherit;
+  color: inherit;
+  text-align: left;
+}
+.permGroupToggleBtn:hover { color: var(--text-2); }
+.permGroupToggleBtn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
+
+.permGroupChevron {
+  display: flex;
+  flex-shrink: 0;
+  color: var(--text-3);
+  transition: transform 0.18s ease;
+  transform: rotate(90deg);   /* points down when the group is open */
+}
+.permissionGroupCollapsed .permGroupChevron { transform: rotate(0deg); }
+
+.permGroupName { flex: 1; min-width: 0; }
+
+@media (prefers-reduced-motion: reduce) {
+  .permGroupChevron { transition: none; }
+}
+
+/* n/total badge — lights up once anything in the group is on, so scanning the
+   column tells you where access has been granted without reading every row. */
+.permGroupCount {
+  flex-shrink: 0;
+  padding: 1px 7px;
+  border-radius: 20px;
+  background: var(--surface);
+  color: var(--text-3);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0;
+  font-variant-numeric: tabular-nums;
+}
+.permGroupCountOn {
+  background: color-mix(in srgb, var(--accent) 16%, transparent);
+  color: var(--accent);
+}
+
+.permGroupToggle {
+  flex-shrink: 0;
+  border: none;
+  background: none;
+  padding: 2px 4px;
+  border-radius: 5px;
+  color: var(--accent);
+  font-family: inherit;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.permGroupToggle:hover { background: color-mix(in srgb, var(--accent) 12%, transparent); }
+.permGroupToggle:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+.permissionList { display: flex; flex-direction: column; }
+.permissionItem {
+  display: grid;
+  grid-template-columns: 18px 1fr;
+  gap: 10px;
+  padding: 10px 11px;
+  border-bottom: 1px solid var(--bdr-2);
+  cursor: pointer;
+  transition: background 0.12s;
+}
+.permissionItem:last-child { border-bottom: none; }
+.permissionItem:hover { background: var(--surface-2); }
+.permissionItem input { display: none; }
+.permissionItem:focus-within { background: var(--surface-2); }
+.permissionItemOn { background: color-mix(in srgb, var(--accent) 6%, var(--surface)); }
+
+.permissionCheck {
+  width: 18px;
+  height: 18px;
+  border-radius: 6px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--surface-2);
+  border: 1.5px solid var(--bdr);
+  color: #fff;
+  margin-top: 1px;
+  transition: background 0.15s, border-color 0.15s, transform 0.12s;
+}
+.permissionItem:hover .permissionCheck { border-color: var(--accent); }
+.permissionItemOn .permissionCheck {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+.permissionText { min-width: 0; }
+.permissionName { display: block; font-size: 12.5px; font-weight: 700; color: var(--text); }
+.permissionDesc { display: block; margin-top: 2px; font-size: 11.5px; line-height: 1.35; color: var(--text-3); }
+
+/* ── Editor head extras ──────────────────────────────────────────────────── */
+.roleEditorHeadRight { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+
+.permTotalPill {
+  padding: 3px 10px;
+  border-radius: 20px;
+  background: var(--surface-2);
+  color: var(--text-2);
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Built-in roles: explain why the form is missing instead of showing empty
+   disabled inputs, which looked like a loading failure. */
+.roleLockedNote {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  padding: 11px 13px;
+  margin-bottom: 16px;
+  border-radius: 10px;
+  background: var(--surface-2);
+  border: 1px solid var(--bdr-2);
+  color: var(--text-2);
+  font-size: 12.5px;
+  line-height: 1.45;
+}
+.roleLockedNote strong { color: var(--text); }
+
+/* ── Actions ─────────────────────────────────────────────────────────────── */
+/* Sticky so Save stays reachable — the permission matrix is long enough that
+   the button was scrolling out of view. */
+.roleEditorActions {
+  position: sticky;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  margin: 16px -16px -16px;
+  padding: 12px 16px;
+  border-top: 1px solid var(--bdr-2);
+  background: var(--surface);
+  border-radius: 0 0 12px 12px;
+}
+.roleActionsHint {
+  margin-right: auto;
+  font-size: 11.5px;
+  color: var(--text-3);
+}
+.roleAssignBar { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.roleAssignCombo { width: 210px; }
+.roleEmptyCell { text-align: center; color: var(--text-3); padding: 22px 0; }
+@media (max-width: 980px) {
+  .rolesLayout { grid-template-columns: 1fr; }
+  .permissionMatrix { grid-template-columns: 1fr; }
+}
+@media (max-width: 640px) {
+  .rolesHeader,
+  .roleEditorHead,
+  .roleEditorActions,
+  .roleAssignBar { align-items: stretch; flex-direction: column; }
+  .roleFormGrid { grid-template-columns: 1fr; }
+  .roleAssignCombo { width: 100%; }
+}
+
+/* ── Responsive page defaults ───────────────────────────────────────────── */
+@media (max-width: 900px) {
+  .page {
+    max-width: none;
+    width: 100%;
+  }
+
+  .pageHead {
+    align-items: stretch;
+    gap: 10px;
+  }
+
+  .pageHeadRight {
+    width: 100%;
+    min-width: 0;
+    justify-content: flex-start;
+    margin-left: 0;
+  }
+
+  .filterBar {
+    padding: 12px;
+  }
+
+  .filterInput,
+  .filterSelect,
+  .filterCombobox,
+  .pageSizeCombobox {
+    flex: 1 1 180px;
+    min-width: min(180px, 100%);
+  }
+
+  .modalPanel,
+  .threadModalPanel,
+  .attachmentWizardPanel {
+    max-height: calc(100dvh - 32px);
+  }
+
+  .threadModalBody,
+  .attachmentWizardBody {
+    padding: 14px;
+  }
+
+  .modalHead,
+  .modalFoot,
+  .attachmentPreviewHead {
+    align-items: stretch;
+    flex-wrap: wrap;
+  }
+
+  .threadHeader,
+  .msgHead,
+  .alertItemHead,
+  .rolesHeader,
+  .roleEditorHead {
+    min-width: 0;
+  }
+
+  .msgSender,
+  .msgCc {
+    max-width: none;
+  }
+}
+
+@media (max-width: 640px) {
+  .modalOverlay {
+    align-items: stretch;
+    padding: 10px;
+  }
+
+  .modalPanel,
+  .threadModalPanel,
+  .attachmentWizardPanel {
+    border-radius: 12px;
+    max-height: calc(100dvh - 20px);
+  }
+
+  .modalHead {
+    padding: 14px;
+  }
+
+  .modalFilter,
+  .modalFoot {
+    padding: 12px 14px;
+  }
+
+  .modalFilter .modalSearch,
+  .modalFilter > :last-child,
+  .modalSearch {
+    width: 100%;
+    max-width: none;
+  }
+
+  .cardBody {
+    padding: 14px;
+  }
+
+  .statGrid,
+  .cols2,
+  .cols3,
+  .colsMain,
+  .summaryCenterGrid,
+  .threadDetailGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .tableWrap {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: auto;
+  }
+
+  .tbl {
+    min-width: 680px;
+  }
+
+  .pageHeadTitle,
+  .welcomeTitle,
+  .rolesTitle {
+    overflow-wrap: anywhere;
+  }
+
+  .quickSearch,
+  .feedItem,
+  .kvRow,
+  .svcRow,
+  .actionRow,
+  .settingsRow {
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .quickSearch {
+    gap: 9px;
+    padding: 10px 12px;
+  }
+
+  .kbdShortcut {
+    display: none;
+  }
+
+  .roleGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .pagination {
+    justify-content: stretch;
+    flex-wrap: wrap;
+  }
+
+  .pagination > * {
+    flex: 1 1 auto;
+  }
+}
+
+@media (max-width: 420px) {
+  .filterInput,
+  .filterSelect,
+  .filterCombobox,
+  .pageSizeCombobox,
+  .btn {
+    width: 100%;
+    max-width: none;
+    flex-basis: 100%;
+  }
+
+  .chips {
+    width: 100%;
+  }
+
+  .chip {
+    flex: 1 1 auto;
+    text-align: center;
+  }
+}

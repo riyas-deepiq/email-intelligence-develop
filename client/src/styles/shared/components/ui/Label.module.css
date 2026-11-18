@@ -1,0 +1,78 @@
+/* ── Base ────────────────────────────────────────────────────────────────────── */
+.label {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  width: fit-content;
+  font-family: var(--font-sans);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  border-radius: 5px;
+  white-space: nowrap;
+  line-height: 1;
+  user-select: none;
+}
+
+/* ── Sizes ───────────────────────────────────────────────────────────────────── */
+.sm {
+  font-size: 10px;
+  padding: 3px 7px;
+}
+.md {
+  font-size: 11.5px;
+  padding: 4px 10px;
+}
+
+/* ── Status dot ──────────────────────────────────────────────────────────────── */
+.dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+  flex-shrink: 0;
+}
+
+/* ── Variants ────────────────────────────────────────────────────────────────── */
+
+/* OK — bright green on dark green tint */
+.ok {
+  color: #4ade80;
+  background: rgba(74, 222, 128, 0.10);
+  border: 1px solid rgba(74, 222, 128, 0.18);
+}
+
+/* DOWN — bright red on dark red tint */
+.down {
+  color: #f87171;
+  background: rgba(248, 113, 113, 0.10);
+  border: 1px solid rgba(248, 113, 113, 0.18);
+}
+
+/* WARN — amber on dark amber tint */
+.warn {
+  color: #facc15;
+  background: rgba(250, 204, 21, 0.10);
+  border: 1px solid rgba(250, 204, 21, 0.18);
+}
+
+/* HIGH — orange on dark orange tint */
+.high {
+  color: #fb923c;
+  background: rgba(251, 146, 60, 0.10);
+  border: 1px solid rgba(251, 146, 60, 0.18);
+}
+
+/* INFO — brand indigo on dark indigo tint */
+.info {
+  color: var(--brand-fg);
+  background: rgba(129, 140, 248, 0.10);
+  border: 1px solid rgba(129, 140, 248, 0.18);
+}
+
+/* NEUTRAL — muted gray on dark gray tint */
+.neutral {
+  color: #8b949e;
+  background: rgba(139, 148, 158, 0.10);
+  border: 1px solid rgba(139, 148, 158, 0.16);
+}

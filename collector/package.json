@@ -1,0 +1,62 @@
+{
+  "name": "@insight-hub/collector",
+  "version": "0.1.0",
+  "description": "Insight Hub — Collector (email ingestion: connect, download, dedup, sync)",
+  "main": "dist/server.js",
+  "bin": "dist/server.js",
+  "engines": {
+    "node": ">=20"
+  },
+  "pkg": {
+    "targets": [
+      "node22-win-x64",
+      "node22-linux-x64"
+    ],
+    "assets": [
+      "package.json"
+    ],
+    "scripts": [
+      "dist/**/*.js"
+    ]
+  },
+  "scripts": {
+    "check": "npm run typecheck && npm run lint && npm run test:run",
+    "dev": "npm run check && tsx watch src/server.ts",
+    "dev:fast": "tsx watch src/server.ts",
+    "start": "node dist/server.js",
+    "build": "tsc -p tsconfig.build.json",
+    "package:win": "npm run build && pkg . --targets node22-win-x64 --compress Brotli --output ../release/win/insight-hub-collector.exe",
+    "package:linux": "npm run build && pkg . --targets node22-linux-x64 --compress Brotli --output ../release/linux/insight-hub-collector",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "test": "vitest",
+    "test:run": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier --write \"src/**/*.ts\" \"tests/**/*.ts\" \"vitest.config.mts\""
+  },
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "googleapis": "^173.0.0",
+    "pino": "^9.3.2",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.21",
+    "@types/node": "^22.0.0",
+    "@types/supertest": "^6.0.2",
+    "@typescript-eslint/eslint-plugin": "^7.16.0",
+    "@typescript-eslint/parser": "^7.16.0",
+    "@vitest/coverage-v8": "^4.1.9",
+    "@yao-pkg/pkg": "^6.21.0",
+    "eslint": "^8.57.0",
+    "eslint-config-prettier": "^9.1.0",
+    "pino-pretty": "^11.2.1",
+    "prettier": "^3.3.3",
+    "supertest": "^7.0.0",
+    "tsx": "^4.16.2",
+    "typescript": "^5.5.3",
+    "vitest": "^4.1.9"
+  }
+}

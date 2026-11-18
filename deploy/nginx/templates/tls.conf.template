@@ -1,0 +1,68 @@
+# INSIGHT_HUB_TLS_MODE=redirect (the default): plain HTTP only redirects, everything is
+# served over TLS. Rendered to /etc/nginx/conf.d/insight-hub.conf.
+
+upstream insight-hub_server {
+    server ${INSIGHT_HUB_UPSTREAM};
+    # Reuse connections to the app instead of a new TCP+handshake per request.
+    keepalive 32;
+}
+
+# Empty (not "close") for ordinary requests: that removes the Connection header
+# entirely, which is what the keepalive pool above needs to work.
+map $http_upgrade $connection_upgrade {
+    default upgrade;
+    ''      '';
+}
+
+server {
+    listen 80;
+    server_name _;
+    server_tokens off;
+
+    # Exempt from the redirect so a health check never follows a 308 to a
+    # self-signed certificate it would then refuse.
+    location = /healthz {
+        access_log off;
+        add_header Content-Type text/plain always;
+        return 200 "nginx ok\n";
+    }
+
+    # 308, not 301: preserves the method and body, so a collector POST that
+    # arrives on :80 is retried as a POST rather than silently becoming a GET.
+    location / {
+        return 308 https://$host$request_uri;
+    }
+}
+
+server {
+    listen 443 ssl;
+    http2 on;
+    server_name _;
+    server_tokens off;
+
+    # Generated self-signed on first boot unless the operator mounts real
+    # material here — see deploy/nginx/entrypoint.sh.
+    ssl_certificate     /etc/nginx/tls/server.crt;
+    ssl_certificate_key /etc/nginx/tls/server.key;
+
+    ssl_protocols       TLSv1.2 TLSv1.3;
+    ssl_session_cache   shared:EITLS:10m;
+    ssl_session_timeout 1d;
+    ssl_session_tickets off;
+
+    # The app already sets CSP, HSTS, nosniff and frameguard via helmet
+    # (server/src/app.ts:38) and they pass straight through. Adding them here
+    # too would mean two sources of truth that quietly diverge.
+
+    # The server runs no compression middleware, so the JS bundle arrives
+    # uncompressed without this. gzip_proxied is required — every response here
+    # is proxied, and nginx skips those by default. text/event-stream is
+    # deliberately absent: compressing the chat stream would buffer it.
+    gzip on;
+    gzip_proxied any;
+    gzip_min_length 1024;
+    gzip_types text/plain text/css application/javascript application/json
+               application/xml image/svg+xml font/woff2;
+
+    include /etc/nginx/insight-hub-locations.conf;
+}

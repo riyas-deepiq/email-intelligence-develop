@@ -1,0 +1,33 @@
+%% Insight Hub — Ingestion (write path)
+sequenceDiagram
+  autonumber
+  participant Adm as Admin
+  participant PR as Probe
+  participant MAIL as M365 / Google
+  participant PG as PostgreSQL
+  participant MIN as MinIO
+  participant MQ as RabbitMQ
+  participant AI as AI Service
+  participant QD as Qdrant
+
+  Adm->>PR: connect mailbox source (admin consent / DWD)
+  PR->>PG: store encrypted credentials/tokens
+  Note over PR: scheduler fires (backfill OR incremental)
+  PR->>PR: split mailbox set across workers (50 -> 5x10)
+  PR->>MAIL: pull messages (delta / historyId)
+  PR->>PG: dedup check (Message-ID + content hash)
+  alt new message
+    PR->>MIN: store raw .eml + attachments
+    PR->>PG: store message/thread metadata
+    PR->>MQ: enqueue "process" job
+    MQ->>AI: deliver job
+    AI->>MIN: read attachments
+    AI->>AI: parse (Tika/unstructured) + OCR + lang detect
+    AI->>AI: chunk + embed (BGE-M3)
+    AI->>QD: upsert vectors + ACL payload
+    AI->>AI: summarize email -> roll up thread summary
+    AI->>PG: store summaries (JSONB)
+  else duplicate
+    PR-->>PR: skip (idempotent)
+  end
+  AI->>PG: write audit + metering events

@@ -1,0 +1,28 @@
+.root {
+  display: inline-flex;
+  min-width: 0;
+  flex-direction: column;
+  line-height: 1;
+}
+
+.wordmark {
+  display: inline-flex;
+  align-items: baseline;
+  color: var(--brand-word-color, currentColor);
+  font-family: var(--font-ui), Arial, sans-serif;
+  font-size: var(--brand-word-size, 1rem);
+  font-weight: 900;
+  letter-spacing: 0.075em;
+  white-space: nowrap;
+}
+
+.tagline {
+  display: inline-flex;
+  color: var(--brand-tagline-color, currentColor);
+  margin-top: var(--brand-tagline-gap, 0.32rem);
+  font-family: var(--font-ui), Arial, sans-serif;
+  font-size: var(--brand-tagline-size, 0.55rem);
+  font-weight: 750;
+  letter-spacing: var(--brand-tagline-tracking, 0.095em);
+  white-space: nowrap;
+}

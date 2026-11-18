@@ -1,0 +1,65 @@
+# Insight Hub — collector unit (systemd TEMPLATE unit, native packaging).
+#
+# The '@' in the filename makes this a template: one packaged file serves every
+# instance, and %i expands to whatever follows the '@'.
+#
+#     systemctl enable --now insight-hub-collector@1
+#     systemctl enable --now insight-hub-collector@2
+#
+# Instance N reads /etc/insight-hub/collectorN/.env and listens on port
+# 3000 + N. Adding a collector creates a config directory and enables a unit
+# instance — the package itself never changes.
+
+[Unit]
+Description=Insight Hub collector instance %i (mailbox ingestion)
+Documentation=file:/usr/share/doc/insight-hub-collector/README.md
+After=network-online.target
+Wants=network-online.target
+# Only a hint about start order; the collector does not require a local server
+# and is perfectly happy pointed at one on another host.
+After=insight-hub.service
+
+[Service]
+Type=simple
+User=email-intel
+Group=email-intel
+WorkingDirectory=/var/lib/insight-hub
+
+Environment=INSIGHT_HUB_CONFIG_DIR=/etc/insight-hub/collector%i
+
+# Per-instance secrets written by the post-install script or by
+# add-collector.sh. See the server unit for why these live outside .env.
+EnvironmentFile=-/etc/insight-hub/collector%i/secrets.env
+
+ExecStart=/usr/bin/insight-hub-collector
+
+# The collector deliberately survives what it can: an unreachable server leaves
+# it up and retrying rather than exiting, so a restart here means something
+# genuinely fatal.
+Restart=on-failure
+RestartSec=5
+StartLimitIntervalSec=120
+StartLimitBurst=6
+
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=insight-hub-collector@%i
+
+# ── Hardening ────────────────────────────────────────────────────────────────
+# Tighter than the server's: a collector streams what it fetches and persists
+# nothing, so it needs write access to its logs and a scratch directory only.
+NoNewPrivileges=true
+PrivateTmp=true
+PrivateDevices=true
+ProtectSystem=strict
+ProtectHome=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictSUIDSGID=true
+RestrictRealtime=true
+LockPersonality=true
+ReadWritePaths=/var/lib/insight-hub /var/log/insight-hub
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,54 @@
+# The location table, shared by the TLS and plain server blocks so the two can
+# never drift. Rendered to /etc/nginx/insight-hub-locations.conf at container start.
+
+# Liveness of the proxy itself. Deliberately not proxied: it must answer while
+# the application is down, which is what makes it useful in a health check.
+location = /healthz {
+    access_log off;
+    add_header Content-Type text/plain always;
+    return 200 "nginx ok\n";
+}
+
+# Collector -> server internal channel. The server already requires
+# `Authorization: Bearer $COLLECTOR_SECRET` here; this is the network half of
+# the same control (docs/05-security-design.md, "Network segmentation"), so a
+# leaked secret alone does not open the endpoint to the internet.
+location /v1/internal/ {
+    include /etc/nginx/insight-hub-internal-acl.conf;
+
+    # /v1/internal/ingest/batch parses up to 25 MB of JSON per flush
+    # (server/src/app.ts:49). Anything under that is rejected by nginx with a
+    # 413 the collector cannot interpret.
+    client_max_body_size ${INSIGHT_HUB_MAX_BODY};
+    # One flush writes 50 messages plus attachments in a single transaction.
+    proxy_read_timeout 300s;
+
+    include /etc/nginx/insight-hub-proxy-headers.conf;
+    proxy_pass http://insight-hub_server;
+}
+
+# Chat streams tokens as Server-Sent Events
+# (server/src/modules/chat/chat.controller.ts:113). Buffering MUST stay off:
+# with it on, nginx holds every token until the response ends, so the user sees
+# a frozen UI for a minute and then the whole answer at once.
+location /api/v1/chat/ {
+    proxy_buffering off;
+    proxy_cache off;
+    # Must exceed OLLAMA_TIMEOUT_MS, or nginx cuts the stream mid-answer.
+    proxy_read_timeout 600s;
+    client_max_body_size ${INSIGHT_HUB_MAX_BODY};
+
+    include /etc/nginx/insight-hub-proxy-headers.conf;
+    proxy_pass http://insight-hub_server;
+}
+
+# UI and API together. They share one origin by design (docs/packaging-design.md
+# §0C), so there is nothing to split here — the server decides what each path
+# is, exactly as it does when reached directly.
+location / {
+    client_max_body_size ${INSIGHT_HUB_MAX_BODY};
+    proxy_read_timeout 120s;
+
+    include /etc/nginx/insight-hub-proxy-headers.conf;
+    proxy_pass http://insight-hub_server;
+}

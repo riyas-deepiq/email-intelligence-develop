@@ -1,0 +1,178 @@
+/* =============================================================================
+   animations.css — Single source of truth for every @keyframes and animation
+   utility class in the project. Import once via global.css.
+   Never define @keyframes in component module CSS files.
+   ============================================================================= */
+
+/* ── Keyframes ────────────────────────────────────────────────────────────────*/
+
+/* Rotation */
+@keyframes spin    { to { transform: rotate(360deg);  } }
+@keyframes spinCCW { to { transform: rotate(-360deg); } }
+
+/* Fade-only */
+@keyframes fadeIn  { from { opacity: 0; } to { opacity: 1; } }
+@keyframes fadeOut { from { opacity: 1; } to { opacity: 0; } }
+
+/* Fade + translate entries */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0);    }
+}
+@keyframes fadeInDown {
+  from { opacity: 0; transform: translateY(-14px); }
+  to   { opacity: 1; transform: translateY(0);     }
+}
+@keyframes fadeInLeft {
+  from { opacity: 0; transform: translateX(-18px); }
+  to   { opacity: 1; transform: translateX(0);     }
+}
+@keyframes fadeInRight {
+  from { opacity: 0; transform: translateX(18px); }
+  to   { opacity: 1; transform: translateX(0);    }
+}
+
+/* Scale entries (cards, modals, popovers) */
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.93); }
+  to   { opacity: 1; transform: scale(1);    }
+}
+@keyframes scaleInFast {
+  from { opacity: 0; transform: scale(0.96); }
+  to   { opacity: 1; transform: scale(1);    }
+}
+
+/* Dropdown / context-menu open */
+@keyframes menuIn {
+  from { opacity: 0; transform: translateY(-8px) scale(0.96); }
+  to   { opacity: 1; transform: translateY(0)    scale(1);    }
+}
+@keyframes menuInUp {
+  from { opacity: 0; transform: translateY(8px)  scale(0.96); }
+  to   { opacity: 1; transform: translateY(0)    scale(1);    }
+}
+
+/* Toast / notification slide in from right */
+@keyframes toastIn {
+  from { opacity: 0; transform: translateX(calc(100% + 16px)); }
+  to   { opacity: 1; transform: translateX(0);                 }
+}
+@keyframes toastOut {
+  from { opacity: 1; transform: translateX(0);                 }
+  to   { opacity: 0; transform: translateX(calc(100% + 16px)); }
+}
+
+/* Toast timer progress bar */
+@keyframes progressShrink { from { width: 100%; } to { width: 0%; } }
+
+/* Skeleton shimmer */
+@keyframes shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position:  200% 0; }
+}
+
+/* Pulse / attention */
+@keyframes pulse {
+  0%, 100% { opacity: 1;    }
+  50%       { opacity: 0.4; }
+}
+@keyframes pulseSoft {
+  0%, 100% { transform: scale(1);    }
+  50%       { transform: scale(1.05); }
+}
+
+/* Badge / dot ping ring */
+@keyframes ping {
+  0%   { transform: scale(1);   opacity: 0.8; }
+  100% { transform: scale(2.2); opacity: 0;   }
+}
+
+/* Alert glow ring */
+@keyframes alertRing {
+  0%   { box-shadow: 0 0 0 0   rgba(220, 38, 38, 0.5); }
+  70%  { box-shadow: 0 0 0 8px rgba(220, 38, 38, 0);   }
+  100% { box-shadow: 0 0 0 0   rgba(220, 38, 38, 0);   }
+}
+
+/* Stagger-friendly count-up for stat numbers */
+@keyframes countUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0);    }
+}
+
+/* Sidebar slide in */
+@keyframes slideInLeft {
+  from { transform: translateX(-100%); opacity: 0; }
+  to   { transform: translateX(0);     opacity: 1; }
+}
+
+/* ── Global utility classes ───────────────────────────────────────────────────
+   Use directly in TSX: className="animate-fadeInUp del-2"
+   These are NOT scoped — intentionally global so any component can use them.
+   ────────────────────────────────────────────────────────────────────────── */
+
+/* Continuous */
+.animate-spin      { animation: spin      0.7s linear infinite; }
+.animate-spinCCW   { animation: spinCCW   0.7s linear infinite; }
+.animate-pulse     { animation: pulse     1.8s ease-in-out infinite; }
+.animate-pulseSoft { animation: pulseSoft 2s   ease-in-out infinite; }
+.animate-ping      { animation: ping      1.2s cubic-bezier(0, 0, 0.2, 1) infinite; }
+.animate-alertRing { animation: alertRing 1.4s ease-out infinite; }
+
+/* Entry (fill-mode: both — stays hidden before delay, stays visible after) */
+.animate-fadeIn      { animation: fadeIn      0.25s ease both; }
+.animate-fadeInUp    { animation: fadeInUp    0.30s ease both; }
+.animate-fadeInDown  { animation: fadeInDown  0.30s ease both; }
+.animate-fadeInLeft  { animation: fadeInLeft  0.30s ease both; }
+.animate-fadeInRight { animation: fadeInRight 0.30s ease both; }
+.animate-scaleIn     { animation: scaleIn     0.22s cubic-bezier(0.16, 1, 0.3, 1) both; }
+.animate-menuIn      { animation: menuIn      0.18s cubic-bezier(0.16, 1, 0.3, 1) both; }
+.animate-menuInUp    { animation: menuInUp    0.18s cubic-bezier(0.16, 1, 0.3, 1) both; }
+.animate-countUp     { animation: countUp     0.35s cubic-bezier(0.16, 1, 0.3, 1) both; }
+
+/* Shimmer skeleton */
+.animate-shimmer {
+  animation: shimmer 1.6s linear infinite;
+  background: linear-gradient(
+    90deg,
+    var(--surface-2, rgba(255,255,255,0.04)) 25%,
+    var(--surface-3, rgba(255,255,255,0.09)) 50%,
+    var(--surface-2, rgba(255,255,255,0.04)) 75%
+  );
+  background-size: 200% 100%;
+}
+
+/* ── Stagger delay helpers ─────────────────────────────────────────────────── */
+.del-0 { animation-delay: 0ms;   }
+.del-1 { animation-delay: 50ms;  }
+.del-2 { animation-delay: 100ms; }
+.del-3 { animation-delay: 150ms; }
+.del-4 { animation-delay: 200ms; }
+.del-5 { animation-delay: 250ms; }
+.del-6 { animation-delay: 300ms; }
+.del-7 { animation-delay: 350ms; }
+.del-8 { animation-delay: 400ms; }
+
+/* ── Skeleton loader block ─────────────────────────────────────────────────── */
+.skeleton {
+  border-radius: 6px;
+  background: linear-gradient(
+    90deg,
+    var(--surface-2, rgba(255,255,255,0.04)) 25%,
+    var(--surface-3, rgba(255,255,255,0.09)) 50%,
+    var(--surface-2, rgba(255,255,255,0.04)) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.6s linear infinite;
+}
+
+/* ── Reduced-motion: disable all animations for accessibility ─────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

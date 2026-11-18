@@ -1,0 +1,10 @@
+%% Insight Hub — First-run onboarding
+flowchart LR
+  A[Install] --> B[Bootstrap Super Admin\nnative login]
+  B --> C[Connect M365 / Google\nadmin consent / DWD]
+  C --> D[Build org hierarchy tree]
+  D --> E[Set retention + sensitive policy]
+  E --> F[Start backfill ingestion\nprogress UI]
+  F --> G[Configure OIDC/SAML SSO]
+  G --> H[Invite employees]
+  H --> I[Employees log in via SSO]

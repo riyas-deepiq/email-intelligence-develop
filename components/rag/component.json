@@ -1,0 +1,37 @@
+{
+  "$schema": "../component.schema.json",
+  "id": "rag",
+  "name": "RAG and Local AI",
+  "description": "Permission-scoped semantic search, OCR, embeddings and local answer generation, deployed with Qdrant, Redis and Ollama.",
+  "kind": "container",
+  "required": false,
+  "image": "insight-hub/rag",
+  "service": {
+    "name": "InsightHubRAG",
+    "displayName": "Insight Hub RAG",
+    "arguments": [],
+    "port": "${RAG_PORT}",
+    "restart": "on-failure",
+    "env": {}
+  },
+  "config": [
+    "RAG_POSTGRES_URL",
+    "CORE_SERVER_URL",
+    "RAG_INTERNAL_SECRET",
+    "RAG_BIND",
+    "RAG_PORT",
+    "EMBED_MODEL_NAME",
+    "OLLAMA_MODEL",
+    "OLLAMA_TIMEOUT_MS",
+    "INGEST_MAX_WORKERS"
+  ],
+  "dataDirs": ["rag", "qdrant", "redis", "ollama"],
+  "healthcheck": {
+    "path": "/health",
+    "timeoutSec": 3600
+  },
+  "firewall": {
+    "inbound": ["${RAG_PORT}"]
+  },
+  "dependsOn": ["server"]
+}

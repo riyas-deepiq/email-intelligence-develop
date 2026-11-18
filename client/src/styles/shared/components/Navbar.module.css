@@ -1,0 +1,100 @@
+.navbar {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  min-height: 72px;
+  display: flex;
+  align-items: center;
+  background: color-mix(in srgb, var(--d-surface) 88%, transparent);
+  border-bottom: 1px solid var(--d-border);
+  color: var(--d-text-hi);
+  backdrop-filter: blur(18px);
+}
+
+.container {
+  width: 100%;
+  max-width: var(--content-max);
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 var(--page-gutter);
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  color: var(--d-text-hi);
+  text-decoration: none;
+}
+
+.logoIconWrap {
+  width: 42px;
+  height: 42px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border-radius: 9px;
+  background: transparent;
+  flex-shrink: 0;
+}
+
+.logoIcon {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.logoCopy {
+  --brand-word-color: var(--d-text-hi);
+  --brand-word-size: 1.05rem;
+  --brand-tagline-color: var(--d-text-lo);
+  --brand-tagline-size: 0.5rem;
+  --brand-tagline-gap: 0.25rem;
+  --brand-tagline-tracking: 0.065em;
+  min-width: 0;
+}
+
+.menu {
+  display: flex;
+  list-style: none;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.link {
+  min-height: 40px;
+  display: inline-flex;
+  align-items: center;
+  color: var(--d-text-md);
+  text-decoration: none;
+  font-size: 0.9rem;
+  padding: 0.5rem 0.85rem;
+  border-radius: 10px;
+  transition: color 0.18s, background 0.18s;
+}
+
+.link:hover {
+  color: var(--d-text-hi);
+  background: var(--d-surface-hover);
+}
+
+.menu li:last-child .link {
+  color: #fff;
+  background: linear-gradient(135deg, var(--brand), var(--brand-hover));
+}
+
+.menu li:last-child .link:hover { box-shadow: var(--shadow-glow); }
+
+@media (max-width: 560px) {
+  .logoCopy {
+    --brand-word-size: 0.9rem;
+    --brand-tagline-size: 0.4rem;
+    --brand-tagline-tracking: 0.025em;
+  }
+  .logoCopy { display: none; }
+  .menu { gap: 0; }
+  .link { padding-inline: 0.65rem; }
+}

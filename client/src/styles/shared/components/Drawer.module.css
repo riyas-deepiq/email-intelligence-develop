@@ -1,0 +1,87 @@
+.backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(10, 7, 20, 0.64);
+  backdrop-filter: blur(5px);
+  z-index: 200;
+}
+
+.panel {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 420px;
+  max-width: calc(100vw - 32px);
+  background: var(--d-surface, #fff);
+  border-left: 1px solid var(--d-border, #e5e7eb);
+  box-shadow: var(--shadow-lg);
+  z-index: 201;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+  animation: slideIn 0.18s ease;
+}
+
+@keyframes slideIn {
+  from { transform: translateX(24px); opacity: 0.6; }
+  to   { transform: translateX(0); opacity: 1; }
+}
+
+.header {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 18px 20px 14px;
+  border-bottom: 1px solid var(--d-border, #e5e7eb);
+  flex-shrink: 0;
+}
+
+.headerText { min-width: 0; flex: 1; }
+
+.title {
+  font-family: var(--font-display);
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--d-text-hi, #111827);
+}
+
+.subtitle {
+  font-size: 12px;
+  color: var(--d-text-dim, #9ca3af);
+  margin-top: 2px;
+}
+
+.closeBtn {
+  background: none;
+  border: none;
+  width: 40px;
+  height: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  color: var(--d-text-dim, #9ca3af);
+  cursor: pointer;
+  padding: 0;
+  border-radius: 10px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+.closeBtn:hover { background: var(--d-surface-hover, #f3f4f6); color: var(--d-text-hi, #111827); }
+
+.body {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.body > * {
+  flex-shrink: 0;
+}

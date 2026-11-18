@@ -1,0 +1,494 @@
+./
+├── docker-compose.yml
+├── .env
+├── .env.example
+├── requirements.txt
+├── README.md
+│
+├── data/
+│   ├── eml/                        # Your test emails (.eml files)
+│   │   ├── email_001.eml
+│   │   ├── email_002.eml
+│   │   └── ...
+│   ├── attachments/                # Extracted attachments
+│   │   ├── pdfs/
+│   │   ├── docx/
+│   │   ├── xlsx/
+│   │   └── images/
+│   └── processed/                  # Processed/parsed text
+│       └── logs/
+│
+├── ingestion/
+│   ├── __init__.py
+│   ├── eml_parser.py               # Parse .eml files
+│   ├── attachment_parser.py        # PDF/DOCX/XLSX/Image parser
+│   ├── chunker.py                  # Text chunking
+│   └── pipeline.py                 # Orchestrate full ingestion
+│
+├── embedding/
+│   ├── __init__.py
+│   ├── nomic_embedder.py           # Ollama nomic-embed-text
+│   └── batch_embedder.py           # Batch processing
+│
+├── vector_store/
+│   ├── __init__.py
+│   ├── qdrant_client.py            # Qdrant operations
+│   └── collections.py              # Collection setup/schema
+│
+├── retrieval/
+│   ├── __init__.py
+│   ├── hybrid_search.py            # Dense + sparse search
+│   ├── reranker.py                 # Cross-encoder reranking
+│   └── context_builder.py          # Build LLM context
+│
+├── llm/
+│   ├── __init__.py
+│   ├── ollama_client.py            # Gemma/Mistral inference
+│   └── prompt_templates.py         # Email prompt templates
+│
+├── api/
+│   ├── __init__.py
+│   ├── main.py                     # FastAPI app entry
+│   ├── routes/
+│   │   ├── __init__.py
+│   │   ├── ingest.py               # Ingest endpoints
+│   │   ├── query.py                # Query endpoints
+│   │   └── emails.py               # Email browse endpoints
+│   └── models.py                   # Pydantic schemas
+│
+├── ui/
+│   └── streamlit_app.py            # Chat UI for testing
+│
+├── tests/
+│   ├── test_eml_parser.py
+│   ├── test_embedding.py
+│   ├── test_retrieval.py
+│   └── test_api.py
+│
+└── scripts/
+    ├── ingest_from_postgres.py     # Run: ingest emails from Postgres `messages`
+    ├── setup_qdrant.py             # Initialize collections
+    └── check_system.py             # Health check all services
+
+
+Embedding Model     │ nomic-embed-text-v1.5         │
+│ Vector DB           │ Qdrant (Docker)               │
+│ LLM Runner          │ Ollama                        │
+│ PDF Parser          │ pdfplumber + pdfminer         │
+│ OCR (images)        │ Tesseract + pytesseract       │
+│ Office Docs         │ python-docx / openpyxl        │
+│ API Framework       │ FastAPI                       │
+│ Task Queue          │ Celery + Redis                │
+│ Metadata DB         │ PostgreSQL                    │
+│ Email Protocol      │ IMAP / exchangelib            │
+│ Chunking            │ LangChain RecursiveTextSplitter│
+│ Reranker            │ ms-marco-MiniLM (cross-enc)
+ollama |  llama3.2 (configurable via OLLAMA_MODEL)
+
+diagram 
+          PROJECT ROOT                                         │
+                                                                      │
+│  ├── docker-compose.yml          ├── .env / .env.example       ├── requirements.txt    │
+└─────────────────────────────────────────────────────────────────────────────────────────┘
+                                          │
+          ┌───────────────────────────────┼───────────────────────────────┐
+          │                               │                               │
+          ▼                               ▼                               ▼
+┌─────────────────┐           ┌───────────────────┐           ┌─────────────────────┐
+│   data/         │           │   scripts/        │           │   tests/            │
+│  (attachments   │           │  ├── check_       │           │  ├── test_eml_      │
+│   saved on      │           │  │   system.py    │           │  │   parser.py      │
+│   manual upload │           │  │                │           │  │                  │
+│   only — bulk   │           │  ├── ingest_from_ │           │  ├── test_          │
+│   source is now │           │  │   postgres.py  │           │  │   embedding.py   │
+│   Postgres)     │           │  │                │           │  │                  │
+│                 │           │  └── setup_       │           │  ├── test_          │
+│  ├── attachments│           │      qdrant.py    │           │  │   retrieval.py   │
+│  │   ├── pdfs/  │           │                   │           │  │                  │
+│  │   ├── docx/  │           │  [Entry Points]   │           │  └── test_api.py   │
+│  │   ├── xlsx/  │           │  Run directly     │           │                     │
+│  │   └── images/│           │                   │           │                     │
+└─────────────────┘           └───────────────────┘           └─────────────────────┘
+
+
+╔═══════════════════════════════════════════════════════════════════════════════════════════╗
+║                              CORE MODULES ARCHITECTURE                                   ║
+╚═══════════════════════════════════════════════════════════════════════════════════════════╝
+
+┌──────────────────────────────────────────────────────────────────────────────────────────┐
+│  LAYER 1 │ INGESTION  ingestion/                                                         │
+├──────────────────────────────────────────────────────────────────────────────────────────┤
+│                                                                                          │
+│   eml_parser.py                attachment_parser.py          chunker.py                 │
+│  ┌──────────────────┐          ┌──────────────────────┐     ┌──────────────────────┐   │
+│  │  EmlParser       │          │  AttachmentParser    │     │  EmailChunker        │   │
+│  │                  │          │                      │     │                      │   │
+│  │ +parse_file()    │          │ +parse()             │     │ +chunk_email_body()  │   │
+│  │ +_extract()      │          │ +_parse_pdf()        │     │ +chunk_attachment()  │   │
+│  │ +_parse_addr()   │          │ +_parse_docx()       │     │ +_split_by_pages()   │   │
+│  │ +_parse_date()   │          │ +_parse_xlsx()       │     │ +_token_len()        │   │
+│  │ +_extract_body() │          │ +_parse_pptx()       │     │                      │   │
+│  │ +_clean_body()   │          │ +_parse_text()       │     │ Uses:                │   │
+│  │ +_decode_part()  │          │ +_parse_csv()        │     │ LangChain            │   │
+│  │ +_extract_       │          │ +_parse_image()      │     │ RecursiveText        │   │
+│  │   attachments()  │          │                      │     │ Splitter             │   │
+│  │                  │          │ Libs:                │     │ + tiktoken           │   │
+│  │ Returns:         │          │ pdfplumber           │     │                      │   │
+│  │ ParsedEmail ─────┼──────►   │ pytesseract/OCR      │     │ Returns:             │   │
+│  │ ParsedAttachment │          │ python-docx          │     │ List[TextChunk]      │   │
+│  └──────────────────┘          │ openpyxl/pandas      │     └──────────────────────┘   │
+│                                │ python-pptx          │              │                  │
+│                                └──────────────────────┘              │                  │
+│                                                                       │                  │
+│   pipeline.py                                                         │                  │
+│  ┌────────────────────────────────────────────────────────────────┐   │                  │
+│  │  IngestionPipeline                                             │◄──┘                  │
+│  │                                                                │                      │
+│  │  +ingest_from_postgres(...)  ◄── Main Entry Point             │                      │
+│  │  +ingest_single(eml_path)     ◄── manual/testing upload only   │                      │
+│  │  +_process_body(parsed)                                        │                      │
+│  │  +_process_attachments(parsed)                                 │                      │
+│  │                                                                │                      │
+│  │  Orchestrates:                                                 │                      │
+│  │  EmlParser → AttachmentParser → Chunker → Embedder → Qdrant   │                      │
+│  └────────────────────────────────────────────────────────────────┘                      │
+└──────────────────────────────────────────────────────────────────────────────────────────┘
+                                          │
+                                          │  List[TextChunk]
+                                          ▼
+┌──────────────────────────────────────────────────────────────────────────────────────────┐
+│  LAYER 2 │ EMBEDDING  embedding/                                                         │
+├──────────────────────────────────────────────────────────────────────────────────────────┤
+│                                                                                          │
+│   nomic_embedder.py                          batch_embedder.py                           │
+│  ┌──────────────────────────────────┐       ┌──────────────────────────────┐            │
+│  │  NomicEmbedder                   │       │  BatchEmbedder               │            │
+│  │                                  │       │  (used by pipeline)          │            │
+│  │  model: nomic-embed-text         │       │                              │            │
+│  │  dim  : 768                      │       │  +embed_chunks_batch()       │            │
+│  │  via  : Ollama localhost:11434   │       │  +process_with_progress()    │            │
+│  │                                  │       └──────────────────────────────┘            │
+│  │  +embed_text(text)               │                                                   │
+│  │    prefix: "search_document: "   │                                                   │
+│  │                                  │   ┌─────────────────────────────────────────┐    │
+│  │  +embed_query(query)             │   │  Ollama API  localhost:11434             │    │
+│  │    prefix: "search_query: "      │   │                                         │    │
+│  │                                  │   │  ┌─────────────────────────────────┐    │    │
+│  │  +embed_batch(texts)             │──►│  │  nomic-embed-text-v1.5          │    │    │
+│  │    batch_size: 32                │   │  │  768 dim | 8192 ctx | ~50ms/GPU │    │    │
+│  │                                  │   │  └─────────────────────────────────┘    │    │
+│  │  +check_connection()             │   │                                         │    │
+│  │  @retry(attempts=3)              │   │  ┌─────────────────────────────────┐    │    │
+│  └──────────────────────────────────┘   │  │  gemma3:4b  (LLM)              │    │    │
+│                                         │  │  → mistral:7b (production)      │    │    │
+│                                         │  └─────────────────────────────────┘    │    │
+│                                         └─────────────────────────────────────────┘    │
+└──────────────────────────────────────────────────────────────────────────────────────────┘
+                                          │
+                                          │  List[float] vectors
+                                          ▼
+┌──────────────────────────────────────────────────────────────────────────────────────────┐
+│  LAYER 3 │ VECTOR STORE  vector_store/                                                   │
+├──────────────────────────────────────────────────────────────────────────────────────────┤
+│                                                                                          │
+│   collections.py                             qdrant_client.py                            │
+│  ┌──────────────────────────────┐           ┌──────────────────────────────────────┐    │
+│  │  setup_collections()         │           │  EmailQdrantClient                   │    │
+│  │                              │           │                                      │    │
+│  │  Creates:                    │           │  +upsert_email_chunks()              │    │
+│  │                              │           │  +search()                           │    │
+│  │  ┌─────────────────────┐     │           │  +_build_filter()                    │    │
+│  │  │  email_bodies        │     │           │  +get_collection_info()              │    │
+│  │  │  dim: 768            │     │           │                                      │    │
+│  │  │  dist: COSINE        │     │           └──────────────────────────────────────┘    │
+│  │  │  HNSW: m=16          │     │                          │                            │
+│  │  │  ef_construct: 200   │     │                          ▼                            │
+│  │  │                      │     │    ┌──────────────────────────────────────────────┐   │
+│  │  │  Payload indexes:    │     │    │           QDRANT  Docker :6333               │   │
+│  │  │  email_id  KEYWORD   │     │    │                                              │   │
+│  │  │  from_addr KEYWORD   │     │    │  ┌────────────────────────────────────────┐ │   │
+│  │  │  thread_id KEYWORD   │     │    │  │  Collection: email_bodies              │ │   │
+│  │  │  date      DATETIME  │     │    │  │                                        │ │   │
+│  │  └─────────────────────┘     │    │  │  Point {                               │ │   │
+│  │                              │    │  │    id: uuid                            │ │   │
+│  │  ┌─────────────────────┐     │    │  │    vector: [768 floats]                │ │   │
+│  │  │  email_attachments   │     │    │  │    payload: {                          │ │   │
+│  │  │  dim: 768            │     │    │  │      email_id, chunk_id,              │ │   │
+│  │  │  dist: COSINE        │     │    │  │      subject, from_addr,              │ │   │
+│  │  │  HNSW: m=16          │     │    │  │      date, thread_id,                 │ │   │
+│  │  │  ef_construct: 200   │     │    │  │      chunk_text, source_type,         │ │   │
+│  │  │                      │     │    │  │      chunk_index, token_count         │ │   │
+│  │  │  Payload indexes:    │     │    │  │    }                                  │ │   │
+│  │  │  email_id  KEYWORD   │     │    │  │  }                                    │ │   │
+│  │  │  filename  KEYWORD   │     │    │  └────────────────────────────────────────┘ │   │
+│  │  │  thread_id KEYWORD   │     │    │                                              │   │
+│  │  │  date      DATETIME  │     │    │  ┌────────────────────────────────────────┐ │   │
+│  │  └─────────────────────┘     │    │  │  Collection: email_attachments         │ │   │
+│  └──────────────────────────────┘    │  │  (same structure + filename,page_num)  │ │   │
+│                                       │  └────────────────────────────────────────┘ │   │
+│                                       │  Storage: ./qdrant_storage (local disk)      │   │
+│                                       └──────────────────────────────────────────────┘   │
+└──────────────────────────────────────────────────────────────────────────────────────────┘
+                                          │
+                                          │  ScoredPoints
+                                          ▼
+┌──────────────────────────────────────────────────────────────────────────────────────────┐
+│  LAYER 4 │ RETRIEVAL  retrieval/                                                         │
+├──────────────────────────────────────────────────────────────────────────────────────────┤
+│                                                                                          │
+│   hybrid_search.py              reranker.py              context_builder.py              │
+│  ┌────────────────────┐        ┌────────────────────┐   ┌────────────────────────┐      │
+│  │  HybridSearch      │        │  Reranker          │   │  context_builder       │      │
+│  │                    │        │                    │   │                        │      │
+│  │  +search(          │        │  model:            │   │  +build_rag_prompt()   │      │
+│  │    query,          │        │  cross-encoder/    │   │  +build_summary_       │      │
+│  │    top_k=20,       │   ───► │  ms-marco-MiniLM   │   │    prompt()            │      │
+│  │    filters,        │        │  -L-6-v2           │   └────────────────────────┘      │
+│  │    search_attach)  │        │                    │                                    │
+│  │                    │        │  +rerank(          │                                    │
+│  │  1. embed_query()  │        │    query,          │                                    │
+│  │  2. search bodies  │        │    contexts,       │                                    │
+│  │  3. search attach  │        │    top_k=5)        │                                    │
+│  │  4. merge+sort     │        │                    │                                    │
+│  │  5. → EmailContext │        │  CrossEncoder      │                                    │
+│  └────────────────────┘        │  scores pairs      │                                    │
+│                                │  → reranked list   │                                    │
+│                                └────────────────────┘                                    │
+│                                                                                          │
+│  Search Flow:                                                                            │
+│  Query ──► embed_query() ──► Qdrant Dense Search ──► Merge Results ──► Rerank ──► Top5 │
+│              (nomic)          bodies + attachments      by score      (cross-enc)        │
+└──────────────────────────────────────────────────────────────────────────────────────────┘
+                                          │
+                                          │  List[EmailContext]  top_k=5
+                                          ▼
+┌──────────────────────────────────────────────────────────────────────────────────────────┐
+│  LAYER 5 │ LLM  llm/                                                                    │
+├──────────────────────────────────────────────────────────────────────────────────────────┤
+│                                                                                          │
+│   ollama_client.py                           prompt_templates.py                         │
+│  ┌──────────────────────────────────┐       ┌────────────────────────────────────────┐  │
+│  │  OllamaLLMClient                 │       │  Templates                             │  │
+│  │                                  │       │                                        │  │
+│  │  model: gemma3:4b (dev)          │       │  SYSTEM_PROMPT                         │  │
+│  │       → mistral:7b (prod)        │       │  "You are an intelligent email         │  │
+│  │                                  │       │   assistant..."                        │  │
+│  │  +generate(                      │       │                                        │  │
+│  │    prompt,                       │       │  build_rag_prompt(                     │  │
+│  │    system,                       │       │    query,                              │  │
+│  │    temperature=0.1,              │       │    contexts,         ┌──────────────┐  │  │
+│  │    max_tokens=1024,              │       │    max_chars=3000)   │ [Source 1]   │  │  │
+│  │    stream=False)                 │       │                      │ Subject: ... │  │  │
+│  │                                  │       │  ► Builds prompt:    │ From: ...    │  │  │
+│  │  +_generate() → str              │       │    Context blocks    │ Date: ...    │  │  │
+│  │  +_stream()   → Generator        │       │    + User query      │ Content: ... │  │  │
+│  │  +check_model() → bool           │       │                      └──────────────┘  │  │
+│  │                                  │       │  build_summary_prompt()                │  │
+│  │  options:                        │       │                                        │  │
+│  │   temperature: 0.1               │       │  EmailContext dataclass:               │  │
+│  │   top_p: 0.9                     │       │   chunk_text, subject,                 │  │
+│  │   num_predict: 1024              │       │   from_addr, date,                     │  │
+│  └──────────────────────────────────┘       │   source_type, filename                │  │
+│                                             └────────────────────────────────────────┘  │
+└──────────────────────────────────────────────────────────────────────────────────────────┘
+                                          │
+                                          │  Generated Answer (stream)
+                                          ▼
+┌──────────────────────────────────────────────────────────────────────────────────────────┐
+│  LAYER 6 │ API  api/                                                                     │
+├──────────────────────────────────────────────────────────────────────────────────────────┤
+│                                                                                          │
+│   main.py                                                                                │
+│  ┌────────────────────────────────────────────────────────────────────────────────────┐ │
+│  │  FastAPI App                                                                       │ │
+│  │  lifespan: setup_collections() on startup                                          │ │
+│  │  CORS middleware                                                                    │ │
+│  │                                                                                    │ │
+│  │   routes/ingest.py          routes/query.py           routes/emails.py            │ │
+│  │  ┌──────────────────┐      ┌──────────────────┐      ┌──────────────────┐        │ │
+│  │  │ /api/v1/ingest   │      │ /api/v1/query    │      │ /api/v1/emails   │        │ │
+│  │  │                  │      │                  │      │                  │        │ │
+│  │  │ POST /upload     │      │ POST /ask        │      │ GET  /list       │        │ │
+│  │  │ POST /folder     │      │ POST /search     │      │ GET  /thread     │        │ │
+│  │  │ GET  /status     │      │ GET  /stream     │      │ DELETE /email    │        │ │
+│  │  └──────────────────┘      └──────────────────┘      └──────────────────┘        │ │
+│  │                                                                                    │ │
+│  │   models.py  (Pydantic Schemas)                                                    │ │
+│  │  ┌──────────────────────────────────────────────────────────────────────────────┐ │ │
+│  │  │  QueryRequest | QueryResponse | IngestRequest | EmailListResponse            │ │ │
+│  │  └──────────────────────────────────────────────────────────────────────────────┘ │ │
+│  │                                                                                    │ │
+│  │  GET /health  →  {"status": "ok"}                                                  │ │
+│  └────────────────────────────────────────────────────────────────────────────────────┘ │
+└──────────────────────────────────────────────────────────────────────────────────────────┘
+                                          │
+                                          ▼
+┌──────────────────────────────────────────────────────────────────────────────────────────┐
+│  LAYER 7 │ UI  ui/                                                                      │
+├──────────────────────────────────────────────────────────────────────────────────────────┤
+│                                                                                          │
+│   streamlit_app.py                                                                       │
+│  ┌────────────────────────────────────────────────────────────────────────────────────┐ │
+│  │                                                                                    │ │
+│  │  ┌──────────────────────────┐    ┌───────────────────────────────────────────┐    │ │
+│  │  │       SIDEBAR            │    │            MAIN CHAT AREA                 │    │ │
+│  │  │                          │    │                                           │    │ │
+│  │  │  ⚙️ Settings             │    │  📧 Email RAG Assistant                   │    │ │
+│  │  │  ├── top_k slider        │    │                                           │    │ │
+│  │  │  ├── rerank_k slider     │    │  ┌─────────────────────────────────────┐  │    │ │
+│  │  │  ├── temperature         │    │  │  💬 Chat History                    │  │    │ │
+│  │  │  └── use_attachments     │    │  │  User: ...                          │  │    │ │
+│  │  │                          │    │  │  Assistant: ... (streaming)         │  │    │ │
+│  │  │  📊 Collection Info      │    │  │                                     │  │    │ │
+│  │  │  ├── email_bodies:       │    │  │  📎 Sources Used (expandable)       │  │    │ │
+│  │  │  │   N vectors           │    │  │  [1] BODY | Subject | From | Date   │  │    │ │
+│  │  │  └── email_attachments:  │    │  │  [2] ATTACH | file.pdf | Page 3     │  │    │ │
+│  │  │      N vectors           │    │  └─────────────────────────────────────┘  │    │ │
+│  │  └──────────────────────────┘    │                                           │    │ │
+│  │                                  │  [ Ask about your emails...        ] 📤   │    │ │
+│  │                                  └───────────────────────────────────────────┘    │ │
+│  │                                                                                    │ │
+│  │  @st.cache_resource → loads: HybridSearch, Reranker, OllamaLLMClient once        │ │
+│  └────────────────────────────────────────────────────────────────────────────────────┘ │
+└──────────────────────────────────────────────────────────────────────────────────────────┘
+
+
+╔═══════════════════════════════════════════════════════════════════════════════════════════╗
+║                         COMPLETE DATA FLOW DIAGRAM                                       ║
+╚═══════════════════════════════════════════════════════════════════════════════════════════╝
+
+  INGESTION FLOW
+  ══════════════
+
+  data/eml/*.eml
+       │
+       ▼
+  ┌─────────────┐    ParsedEmail     ┌──────────────────┐    bytes      ┌──────────────┐
+  │  EmlParser  │ ─────────────────► │ AttachmentParser │ ───────────► │  Extracted   │
+  │             │                    │                  │              │  Text        │
+  │ eml_parser  │                    │ PDF/DOCX/XLSX    │              │  per file    │
+  │    .py      │                    │ PPTX/CSV/IMG/OCR │              └──────┬───────┘
+  └──────┬──────┘                    └──────────────────┘                     │
+         │ body_text                                                           │ attachment_text
+         ▼                                                                     ▼
+  ┌─────────────┐                                                    ┌──────────────────┐
+  │  Chunker    │                                                    │  Chunker         │
+  │             │                                                    │                  │
+  │ chunk_email │                                                    │ chunk_attachment │
+  │   _body()   │                                                    │   ()             │
+  └──────┬──────┘                                                    └────────┬─────────┘
+         │ List[TextChunk]                                                    │ List[TextChunk]
+         ▼                                                                    ▼
+  ┌──────────────────────────────────────────────────────────────────────────────────┐
+  │                         NomicEmbedder                                            │
+  │                 prefix: "search_document: " + chunk.text                         │
+  │                         → [768 float vector]                                     │
+  └──────────────────────────────────┬───────────────────────────────────────────────┘
+                                     │ vector + payload
+              ┌──────────────────────┴─────────────────────┐
+              ▼                                             ▼
+  ┌───────────────────────┐                   ┌────────────────────────┐
+  │  Qdrant               │                   │  Qdrant                │
+  │  email_bodies         │                   │  email_attachments     │
+  │  collection           │                   │  collection            │
+  └───────────────────────┘                   └────────────────────────┘
+
+
+  QUERY FLOW
+  ══════════
+
+  User Question: "What did John say about Q4 budget?"
+       │
+       ▼
+  ┌────────────────────────┐
+  │  NomicEmbedder         │
+  │  embed_query()         │
+  │  prefix:"search_query:"│
+  │  → [768 float vector]  │
+  └───────────┬────────────┘
+              │
+              ▼
+  ┌─────────────────────────────────────────────────────────────────┐
+  │                     HybridSearch                                │
+  │                                                                 │
+  │  ┌──────────────────────────┐   ┌──────────────────────────┐   │
+  │  │  Qdrant: email_bodies    │   │  Qdrant: attachments     │   │
+  │  │  top_k=20                │   │  top_k=10                │   │
+  │  │  hnsw_ef=128             │   │  hnsw_ef=128             │   │
+  │  │  score_threshold=0.3     │   │  score_threshold=0.3     │   │
+  │  │  → ScoredPoints          │   │  → ScoredPoints          │   │
+  │  └──────────────┬───────────┘   └───────────┬──────────────┘   │
+  │                 │                            │                  │
+  │                 └───────────┬────────────────┘                  │
+  │                             │ merge + sort by score             │
+  │                             ▼                                   │
+  │                    List[EmailContext]  top=20                   │
+  └─────────────────────────────┬───────────────────────────────────┘
+                                │
+                                ▼
+  ┌─────────────────────────────────────────────────────────────────┐
+  │                     Reranker                                    │
+  │  cross-encoder/ms-marco-MiniLM-L-6-v2                          │
+  │                                                                 │
+  │  pairs = [(query, ctx.subject+ctx.chunk_text) for ctx]         │
+  │  scores = model.predict(pairs)                                  │
+  │  → sorted top 5                                                 │
+  └─────────────────────────────┬───────────────────────────────────┘
+                                │ List[EmailContext] top=5
+                                ▼
+  ┌─────────────────────────────────────────────────────────────────┐
+  │                  build_rag_prompt()                             │
+  │                                                                 │
+  │  ═══════════ EMAIL CONTEXT ═══════════                          │
+  │  [Source 1] Email Body                                          │
+  │  Subject : Q4 Budget Review                                     │
+  │  From    : john@company.com                                     │
+  │  Date    : 2024-01-15                                           │
+  │  Content : The Q4 budget has been...                            │
+  │  ──────────────────────────────────                             │
+  │  [Source 2] Attachment: budget.xlsx                             │
+  │  ...                                                            │
+  │  ═══════════════════════════════════                            │
+  │  Question: What did John say about Q4 budget?                   │
+  └─────────────────────────────┬───────────────────────────────────┘
+                                │
+                                ▼
+  ┌─────────────────────────────────────────────────────────────────┐
+  │                  OllamaLLMClient                                │
+  │                                                                 │
+  │  DEV  : gemma3:4b   → fast, 4GB RAM                            │
+  │  PROD : mistral:7b  → accurate, 8GB RAM                        │
+  │                                                                 │
+  │  stream=True → token by token response                         │
+  └─────────────────────────────┬───────────────────────────────────┘
+                                │ streamed answer
+                                ▼
+                    Streamlit Chat UI / FastAPI Response
+
+
+╔═══════════════════════════════════════════════════════════════════════════════════════════╗
+║                        INFRASTRUCTURE & DEPENDENCIES                                     ║
+╚═══════════════════════════════════════════════════════════════════════════════════════════╝
+
+  docker-compose.yml
+  ┌──────────────────────────────────────────────────┐
+  │                                                  │
+  │  ┌──────────────────┐   ┌──────────────────┐     │
+  │  │  Qdrant          │   │  Redis           │     │                  
+  │  │  :6333 (HTTP)    │   │  :6379           │     │                      
+  │  │  :6334 (gRPC)    │   │                  │     │                              
+  │  │                  │   │  Used by:        │     │                 
+  │  │  ./qdrant_storage│   │  Celery queue    │     │                 
+  │  │  (local volume)  │   │  Cache layer     │     │                      
+  │  └──────────────────┘   └──────────────────┘     │
+  │                                                  │
+  └──────────────────────────────────────────────────┘
+
+  Ollama (runs on host, not Docker)
+  ┌─────────────────────────────────────────────────────────────────────────────────────┐
+  │  localhost:11434                                                                    │
+  │  ├── nomic-embed-text   (embedding)   ollama pull nomic-embed-text                 │
+  │  └── gemma3:4b          (LLM dev)     ollama pull gemma3:4b                        │
+  │      mistral:7b         (LLM prod)    ollama pull mistral   ← add later            │
+  └─────────────────────────────────────────────────────────────────────────────────────
+

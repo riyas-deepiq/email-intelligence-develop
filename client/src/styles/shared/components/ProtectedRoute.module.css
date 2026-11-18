@@ -1,0 +1,18 @@
+.spinnerWrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background: var(--d-bg);
+}
+
+.spinner {
+  width: 36px;
+  height: 36px;
+  border: 3px solid var(--d-border);
+  border-top-color: var(--brand);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+/* @keyframes spin defined globally in animations.css */

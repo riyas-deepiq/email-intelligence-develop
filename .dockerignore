@@ -1,0 +1,45 @@
+# Build context exclusions for deploy/docker/*.Dockerfile (context = repo root).
+# Keeping this tight matters: without it the context includes node_modules,
+# Qdrant storage and packaged binaries — hundreds of MB shipped to the daemon
+# on every build.
+
+# Dependencies / build output — reinstalled and rebuilt inside the images
+**/node_modules
+**/dist
+server/public
+**/venv
+**/.venv
+**/__pycache__
+**/*.pyc
+**/tests
+**/__tests__
+**/*.test.*
+**/*.spec.*
+
+# Packaged binaries and installer staging
+release/
+installer/*/staging/
+
+# Local service state — must never be baked into an image
+RAG/qdrant_data/
+RAG/qdrant_storage/
+RAG/data/
+RAG/insight_hub.db
+RAG/celerybeat-schedule
+
+# Secrets and local config
+**/.env
+**/.env.local
+!**/.env.example
+!client/.env.production
+
+# Generated reports / docs / VCS
+graphify-out/
+docs/
+*.html
+.git
+.github
+.claude
+.vscode
+**/coverage
+**/*.log

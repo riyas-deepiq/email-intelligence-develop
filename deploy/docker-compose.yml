@@ -1,0 +1,344 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Insight Hub — full-stack container deployment (single node).
+#
+#   cp .env.example .env    # then fill in the secrets it refuses to default
+#   docker compose up -d --build
+#   → UI + API on http://localhost:3000
+#
+# There is no `client` service on purpose: the web UI is compiled into the
+# server image and served from its own origin on :3000, matching how the
+# packaged binary ships (docs/packaging-design.md §0C).
+#
+# An optional nginx edge sits in front of all this — TLS, the /v1/internal
+# allowlist and real client IPs:
+#
+#   docker compose --profile proxy up -d       # → https://localhost
+#
+# Only the server port is published. Datastores and AI services stay on the
+# isolated backend network. The collector receives a separate egress network
+# for Microsoft/Google APIs but has no published port. Exposing RAG directly
+# would bypass the server's mailbox permission checks.
+# ─────────────────────────────────────────────────────────────────────────────
+
+name: insight-hub
+
+x-logging: &default-logging
+  driver: local
+  options:
+    max-size: 10m
+    max-file: "5"
+
+x-app-hardening: &app-hardening
+  read_only: true
+  security_opt:
+    - no-new-privileges:true
+  cap_drop:
+    - ALL
+  pids_limit: 512
+  stop_grace_period: 30s
+  logging: *default-logging
+
+services:
+
+  # ── Data stores ────────────────────────────────────────────────────────────
+  postgres:
+    image: postgres:16.14-alpine3.24
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in deploy/.env}
+      POSTGRES_DB: ${POSTGRES_DB:-insight_hub}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - backend
+    logging: *default-logging
+    stop_grace_period: 60s
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-insight_hub}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    # ports: ["5432:5432"]   # debugging only
+
+  redis:
+    image: redis:7.4.10-alpine
+    restart: unless-stopped
+    volumes:
+      - redis_data:/data
+    networks:
+      - backend
+    logging: *default-logging
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  qdrant:
+    image: qdrant/qdrant:v1.19.0-unprivileged
+    restart: unless-stopped
+    volumes:
+      - qdrant_storage:/qdrant/storage
+    networks:
+      - backend
+    logging: *default-logging
+    # No healthcheck: the image ships no curl/wget, so the usual HTTP probe
+    # would fail on a perfectly healthy node. rag-entrypoint.sh polls /healthz
+    # from the RAG container instead, which is the dependency that matters.
+    # ports: ["6333:6333"]   # debugging only
+
+  # ── Local inference ────────────────────────────────────────────────────────
+  # Dev/pilot serving layer. On a production node this is replaced by the MiPhi
+  # box behind the same OpenAI-compatible interface — point OLLAMA_BASE_URL at
+  # it and drop these two services.
+  ollama:
+    image: ollama/ollama:0.32.6
+    restart: unless-stopped
+    volumes:
+      - ollama_models:/root/.ollama
+    networks:
+      - backend
+    logging: *default-logging
+    stop_grace_period: 60s
+    healthcheck:
+      test: ["CMD", "ollama", "list"]
+      interval: 15s
+      timeout: 10s
+      retries: 10
+      start_period: 30s
+    # NVIDIA GPU — uncomment with the NVIDIA Container Toolkit installed.
+    # Without it Ollama runs on CPU: correct, but slow enough that ingestion of
+    # a real mailbox takes hours rather than minutes.
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices:
+    #         - driver: nvidia
+    #           count: all
+    #           capabilities: [gpu]
+
+  # One-shot: pulls the embedding + chat models into the shared volume, then exits.
+  # Re-running `docker compose up` re-runs it; both pulls are no-ops once cached.
+  ollama-init:
+    image: ollama/ollama:0.32.6
+    depends_on:
+      ollama:
+        condition: service_healthy
+      ollama-init:
+        condition: service_completed_successfully
+    environment:
+      OLLAMA_HOST: http://ollama:11434
+      EMBED_MODEL_NAME: ${EMBED_MODEL_NAME:-nomic-embed-text}
+      OLLAMA_MODEL: ${OLLAMA_MODEL:-llama3.2}
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - 'set -e;
+         echo "pulling $${EMBED_MODEL_NAME}"; ollama pull "$${EMBED_MODEL_NAME}";
+         echo "pulling $${OLLAMA_MODEL}";     ollama pull "$${OLLAMA_MODEL}";
+         echo "models ready"'
+    restart: "no"
+    networks:
+      - backend
+      - egress
+    logging: *default-logging
+
+  # ── Application services ───────────────────────────────────────────────────
+  rag:
+    <<: *app-hardening
+    build:
+      context: ..
+      dockerfile: deploy/docker/rag.Dockerfile
+    image: insight-hub/rag:${IMAGE_TAG:-local}
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      qdrant:
+        condition: service_started
+      ollama:
+        condition: service_healthy
+    environment:
+      QDRANT_HOST: qdrant
+      QDRANT_PORT: 6333
+      # SQLAlchemy URL — same database the server writes mail into. RAG reads
+      # the `messages` table directly during ingestion.
+      POSTGRES_URL: postgresql+psycopg2://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-insight_hub}
+      REDIS_URL: redis://redis:6379/0
+      CELERY_BROKER_URL: redis://redis:6379/0
+      CELERY_RESULT_BACKEND: redis://redis:6379/1
+      OLLAMA_BASE_URL: http://ollama:11434
+      CORE_SERVER_URL: http://server:3000
+      EMBED_MODEL_NAME: ${EMBED_MODEL_NAME:-nomic-embed-text}
+      OLLAMA_MODEL: ${OLLAMA_MODEL:-llama3.2}
+      INGEST_MAX_WORKERS: ${INGEST_MAX_WORKERS:-4}
+      # Fail-closed: with this blank, /query/* returns 503 rather than serving
+      # unauthenticated requests. Must equal the server's RAG_API_SECRET.
+      RAG_INTERNAL_SECRET: ${RAG_INTERNAL_SECRET:?set RAG_INTERNAL_SECRET in deploy/.env}
+      RAG_ALLOW_INSECURE_INTERNAL: "false"
+    volumes:
+      - rag_data:/app/data
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,size=256m
+    networks:
+      - backend
+    # ports: ["8000:8000"]   # debugging only — never publish in production
+
+  server:
+    <<: *app-hardening
+    build:
+      context: ..
+      dockerfile: deploy/docker/server.Dockerfile
+    image: insight-hub/server:${IMAGE_TAG:-local}
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      # Not service_healthy: the server boots fine without RAG (chat returns an
+      # error until RAG is up), and waiting on the model load would stall the UI.
+      rag:
+        condition: service_started
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+      # The UI is served from this same origin, so CORS only matters if you put
+      # a different hostname in front. Set it to your real external origin.
+      CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:3000}
+      DB_DRIVER: postgres
+      # The server creates the database if missing, applies Drizzle migrations
+      # and seeds on startup — no separate migrate step is needed.
+      DATABASE_URL: postgres://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-insight_hub}
+      REDIS_URL: redis://redis:6379
+      JWT_SECRET: ${JWT_SECRET:?set JWT_SECRET in deploy/.env (min 32 chars)}
+      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-15m}
+      REFRESH_TOKEN_TTL_SEC: ${REFRESH_TOKEN_TTL_SEC:-604800}
+      # 64-char lowercase hex. The placeholder value is rejected at startup when
+      # NODE_ENV=production, so this must be a real key.
+      OIDC_ENCRYPTION_KEY: ${OIDC_ENCRYPTION_KEY:?set OIDC_ENCRYPTION_KEY in deploy/.env (64 hex chars)}
+      RAG_API_URL: ${RAG_API_URL:-http://rag:8000}
+      RAG_API_SECRET: ${RAG_INTERNAL_SECRET}
+      OLLAMA_BASE_URL: http://ollama:11434
+      OLLAMA_MODEL: ${OLLAMA_MODEL:-llama3.2}
+      OLLAMA_TIMEOUT_MS: ${OLLAMA_TIMEOUT_MS:-120000}
+      COLLECTOR_SECRET: ${COLLECTOR_SECRET:?set COLLECTOR_SECRET in deploy/.env}
+      # COLLECTOR_URL is intentionally unset: probe/sync work is enqueued
+      # straight into the database (services/collector.service.ts) and the
+      # collector claims it by polling. The collector's HTTP /probe and /sync
+      # endpoints are stubs kept for compatibility, so a URL here buys nothing.
+      # Note the native packages DO set it — see installer/*/config/server.env.
+      SEED_DEFAULT_ADMIN: ${SEED_DEFAULT_ADMIN:-true}
+      SEED_ADMIN_EMAIL: ${SEED_ADMIN_EMAIL:-admin@insight-hub.local}
+      SEED_ADMIN_PASSWORD: ${SEED_ADMIN_PASSWORD:?set SEED_ADMIN_PASSWORD in deploy/.env}
+      SMTP_HOST: ${SMTP_HOST:-}
+      SMTP_PORT: ${SMTP_PORT:-}
+      SMTP_USER: ${SMTP_USER:-}
+      SMTP_PASS: ${SMTP_PASS:-}
+      SMTP_FROM: ${SMTP_FROM:-}
+    ports:
+      # Bind to 127.0.0.1 when the nginx profile is on, so the only way in is
+      # through the proxy — otherwise the /v1/internal allowlist and the TLS
+      # redirect are trivially bypassed by asking :3000 directly.
+      - "${SERVER_BIND:-127.0.0.1}:${SERVER_PORT:-3000}:3000"
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,size=64m
+    networks:
+      - edge
+      - backend
+
+  collector:
+    <<: *app-hardening
+    build:
+      context: ..
+      dockerfile: deploy/docker/collector.Dockerfile
+    image: insight-hub/collector:${IMAGE_TAG:-local}
+    restart: unless-stopped
+    depends_on:
+      server:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      PORT: 3001
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+      # All collector traffic goes here — never directly to Postgres or Redis.
+      SERVER_URL: http://server:3000
+      COLLECTOR_SECRET: ${COLLECTOR_SECRET}
+      POLL_INTERVAL_MS: ${POLL_INTERVAL_MS:-30000}
+      WORKER_CONCURRENCY: ${WORKER_CONCURRENCY:-10}
+      JOB_HEARTBEAT_MS: ${JOB_HEARTBEAT_MS:-120000}
+      FLUSH_MAX_MESSAGES: ${FLUSH_MAX_MESSAGES:-50}
+      FLUSH_MAX_SIZE_MB: ${FLUSH_MAX_SIZE_MB:-50}
+      FLUSH_MAX_AGE_MS: ${FLUSH_MAX_AGE_MS:-10000}
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,size=64m
+    networks:
+      - backend
+      - egress
+    # Scale out ingestion across instances; each reports its own heartbeat.
+    #   docker compose up -d --scale collector=3
+    # (remove any `ports:` mapping before scaling — host ports can't be shared)
+
+  # ── Edge ───────────────────────────────────────────────────────────────────
+  # Opt-in: `docker compose --profile proxy up -d`. Without the profile the
+  # stack behaves exactly as before and the server is reached directly on 3000,
+  # which is what the packaged single-node install does (docs/packaging-design.md
+  # §0C — the app serves its own UI, so a proxy buys nothing there).
+  #
+  # Turn it on when you need any of: TLS at the edge, /v1/internal/ restricted
+  # to the collector subnet, one hostname in front of several nodes, or a real
+  # client IP for the auth rate limiters.
+  nginx:
+    build:
+      context: ..
+      dockerfile: deploy/docker/nginx.Dockerfile
+    image: insight-hub/nginx:${IMAGE_TAG:-local}
+    profiles: ["proxy"]
+    restart: unless-stopped
+    depends_on:
+      server:
+        condition: service_healthy
+    environment:
+      INSIGHT_HUB_UPSTREAM: server:3000
+      INSIGHT_HUB_TLS_MODE: ${TLS_MODE:-redirect}
+      # CN/SAN of the self-signed certificate generated on first boot. Set this
+      # to the hostname users actually type, or every browser flags a mismatch
+      # on top of the untrusted-issuer warning.
+      INSIGHT_HUB_SERVER_NAME: ${PUBLIC_HOSTNAME:-insight-hub.local}
+      # Who may reach /v1/internal/*. Defaults to RFC1918 — right for a private
+      # network, too wide for a node with a public interface. Narrow it to the
+      # collector hosts.
+      INSIGHT_HUB_INTERNAL_ALLOW: ${INTERNAL_ALLOW_CIDRS:-127.0.0.1/32,10.0.0.0/8,172.16.0.0/12,192.168.0.0/16}
+      # Must stay >= the 25 MB the server accepts on /v1/internal/ingest/batch.
+      INSIGHT_HUB_MAX_BODY: ${MAX_BODY_SIZE:-64m}
+    volumes:
+      # Keeps the generated certificate across restarts. To use a real one:
+      #   docker compose cp your.crt nginx:/etc/nginx/tls/server.crt
+      # or replace this line with a bind mount of a directory holding
+      # server.crt + server.key.
+      - nginx_tls:/etc/nginx/tls
+    ports:
+      - "${HTTP_PORT:-80}:80"
+      - "${HTTPS_PORT:-443}:443"
+    networks:
+      - edge
+    security_opt:
+      - no-new-privileges:true
+    logging: *default-logging
+
+volumes:
+  pgdata:
+  redis_data:
+  qdrant_storage:
+  ollama_models:
+  rag_data:
+  nginx_tls:
+
+networks:
+  edge:
+  egress:
+  backend:
+    internal: true

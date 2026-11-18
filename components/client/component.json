@@ -1,0 +1,14 @@
+{
+  "$schema": "../component.schema.json",
+  "id": "client",
+  "name": "Web Interface",
+  "description": "The React single-page application. Static assets with no runtime of their own — they are bundled into the server executable and served by it, so this component installs no service and opens no port.",
+  "kind": "static",
+  "required": true,
+  "servedBy": "server",
+  "buildOutput": "client/dist",
+  "bundledInto": "server/public",
+  "config": [],
+  "dataDirs": [],
+  "dependsOn": ["server"]
+}

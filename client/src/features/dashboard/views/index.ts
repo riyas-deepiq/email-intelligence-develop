@@ -1,0 +1,22 @@
+// Barrel for all dashboard views — import via `@/features/dashboard/views`.
+export { AISummariesView }   from './AISummariesView';
+export { AdminConsoleView }  from './AdminConsoleView';
+export { AdminOverviewView } from './AdminOverviewView';
+export { AlertsView }        from './AlertsView';
+export { AttachmentsView }   from './AttachmentsView';
+export { AuditLogView }      from './AuditLogView';
+export { ComingSoonView }    from './ComingSoonView';
+export { EmailProviderView } from './EmailProviderView';
+export { EmailsView }        from './EmailsView';
+export { MailboxesView }     from './MailboxesView';
+export { MonitoringView }    from './MonitoringView';
+export { OrgsView }          from './OrgsView';
+export { OverviewView }      from './OverviewView';
+export { RagPipelineView }   from './RagPipelineView';
+export { ReportsView }       from './ReportsView';
+export { RolesView }         from './RolesView';
+export { SettingsView }      from './SettingsView';
+export { SsoSettingsView }   from './SsoSettingsView';
+export { ThreadsView }       from './ThreadsView';
+export { UserOverviewView }  from './UserOverviewView';
+export { UsersView }         from './UsersView';

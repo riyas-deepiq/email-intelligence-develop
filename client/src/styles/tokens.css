@@ -1,0 +1,689 @@
+/* =============================================================================
+   tokens.css — Single source of truth for every color, font, and radius.
+   DEFAULT = light theme (Airtable-style). Dark theme overrides via [data-theme="dark"].
+   ============================================================================= */
+
+:root {
+
+  /* ── Brand / accent ─────────────────────────────────────────────────────── */
+  /* Insight Hub primary accent. Semantic status colours stay independent. */
+  --brand:              #7c3aed;
+  --brand-hover:        #6d28d9;
+  --brand-light:        #f1eafe;
+  --brand-fg:           #7c3aed;
+  --brand-focus-ring:   rgba(124, 58, 237, 0.22);
+
+  /* Warm secondary indicator (the reference's orange accents). */
+  --accent-orange:      #0891b2;
+  --accent-orange-bg:   #e6f7fb;
+
+  /* ── Semantic status ─────────────────────────────────────────────────────── */
+  --color-success:      #16a34a;
+  --color-success-bg:   #dcfce7;
+  --color-success-light:#22c55e;
+  --color-success-ring: rgba(34, 197, 94, 0.12);
+  --color-danger:       #dc2626;
+  --color-danger-bg:    #fef2f2;
+  --color-danger-border:#fecaca;
+  --color-danger-ring:  rgba(239, 68, 68, 0.1);
+  --color-warning:      #d97706;
+  --color-warning-text: #b45309;
+  --color-warning-bg:   #fef3c7;
+
+  /* ── File-type badge palette ─────────────────────────────────────────────── */
+  --file-pdf:    #dc2626;
+  --file-xlsx:   #16a34a;
+  --file-pptx:   #ea580c;
+  --file-docx:   #2563eb;
+  --file-badge-fg: #ffffff;
+
+  /* ── Role badge palette ──────────────────────────────────────────────────── */
+  --role-superadmin-bg: #ede9fe;
+  --role-superadmin-fg: #5b21b6;
+  --role-admin-bg:      #dbeafe;
+  --role-admin-fg:      #1d4ed8;
+  --role-employee-bg:   #dcfce7;
+  --role-employee-fg:   #15803d;
+
+  /* ── Auth pages ─────────────────────────────────────────────────────────── */
+  /* Backdrop wash — kept in the brand family so the login screen matches the
+     accent rather than staying on the old indigo tint. */
+  --auth-grad-from:     #faf7ff;
+  --auth-grad-mid:      #f1eafe;
+  --auth-grad-to:       #ecfeff;
+  --auth-card-bg:       #ffffff;
+
+  /* ── Global text scale ───────────────────────────────────────────────────── */
+  --text-hi:    #18142f;
+  --text-md:    #403a5d;
+  --text-lo:    #625c78;
+  --text-dim:   #706980;
+
+  /* ── Global surfaces ─────────────────────────────────────────────────────── */
+  --surface-white:      #ffffff;
+  --surface-gray:       #f6f4fb;
+  --surface-gray-hover: #eeeaf7;
+
+  /* ── Global borders ──────────────────────────────────────────────────────── */
+  --border:       #dcd7e8;
+  --border-light: #ebe7f2;
+
+  /* ── Info / notice box ───────────────────────────────────────────────────── */
+  --info-bg:     #f4efff;
+  --info-border: #ddd0fb;
+
+  /* ── Sidebar tokens — LIGHT default (white sidebar) ────────────────────── */
+  --sb-bg:            #ffffff;
+  --sb-border:        #e2ddeb;
+  --sb-hover:         #f3f0fa;
+  --sb-active:        var(--brand);
+  --sb-active-hover:  var(--brand-hover);
+  --sb-text-hi:       #18142f;
+  --sb-text-md:       #403a5d;
+  --sb-text-dim:      #625c78;
+  --sb-text-muted:    #706980;
+  --sb-section-label: #706980;
+
+  /* ── Typography — unified modern UI font (Inter) ─────────────────────────── */
+  --font-sans: 'DM Sans', 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI',
+    Roboto, sans-serif;
+  --font-display: 'Space Grotesk', var(--font-sans);
+  --font-mono: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
+  --font-ui:   var(--font-sans);
+
+  /* ── Border radii ────────────────────────────────────────────────────────── */
+  /* Rounder than before for the soft card-based look of the reference. */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+
+  /* ── Card treatment (theme-aware) ────────────────────────────────────────── */
+  /* Frosted-card sheen + shadow. LIGHT: a bright top-light on cream. These are
+     overridden in the dark block — a white sheen and warm shadow look muddy on
+     a dark canvas, which is the bug this fixes. */
+  --card-sheen:        rgba(255, 255, 255, 0.72);
+  --card-shadow:       0 1px 2px rgba(35, 25, 66, 0.04), 0 14px 36px -24px rgba(72, 43, 135, 0.28);
+  --card-shadow-hover: 0 4px 10px rgba(35, 25, 66, 0.06), 0 22px 48px -26px rgba(72, 43, 135, 0.34);
+
+  /* ── Legacy aliases ──────────────────────────────────────────────────────── */
+  --color-primary:       var(--brand);
+  --color-primary-hover: var(--brand-hover);
+  --color-dark:          #343a40;
+  --color-text:          var(--text-hi);
+  --color-text-muted:    var(--text-lo);
+  --color-border:        var(--border);
+  --color-bg:            #f8f9fa;
+
+  /* ── Short aliases ───────────────────────────────────────────────────────── */
+  --bg:          var(--d-bg);
+  --surface:     var(--d-surface);
+  --surface-2:   var(--d-surface-hover);
+  --surface-3:   var(--d-surface-active);
+  --text:        var(--d-text-hi);
+  --text-2:      var(--d-text-md);
+  --text-3:      var(--d-text-lo);
+  --accent:      var(--d-accent);
+  --accent-ink:  var(--d-accent-fg);
+  --accent-bg:   var(--d-accent-bg);
+  --bdr:         var(--d-border);
+  --bdr-2:       var(--d-border-sub);
+  --ok:          var(--color-success);
+  --ok-bg:       var(--color-success-bg);
+  --warn:        var(--color-warning);
+  --warn-bg:     var(--color-warning-bg);
+  --danger:      var(--color-danger);
+  --danger-bg:   var(--color-danger-bg);
+  --violet:      #7c3aed;
+  --violet-bg:   #ede9fe;
+  --teal:        #0891b2;
+  --teal-bg:     #e0f2fe;
+  --neutral-bg:  var(--d-tag-bg);
+  --neutral-fg:  var(--d-tag-fg);
+
+  /* ── Form tokens — LIGHT default ────────────────────────────────────────── */
+  --form-input-bg:          #ffffff;
+  --form-input-border:      #dcd7e8;
+  --form-input-text:        #18142f;
+  --form-input-placeholder: #756e88;
+  --form-label-text:        #403a5d;
+  --form-hint-text:         #625c78;
+
+  /* ── Dashboard theme tokens — LIGHT default ─────────────────────────────── */
+  /* Soft beige/cream canvas with warm-neutral borders — the reference palette.
+     Cards stay near-white so they read as frosted panels floating on the cream. */
+  --d-bg:              #f7f5fb;
+  --d-surface:         #ffffff;
+  --d-surface-hover:   #f3f0fa;
+  --d-surface-active:  var(--brand-light);
+  --d-border:          #e2ddeb;
+  --d-border-sub:      #eeeaf4;
+  --d-topbar-bg:       rgba(247, 245, 251, 0.88);
+  --d-topbar-border:   #e2ddeb;
+  --d-topbar-title:    #18142f;
+  --d-menu-hover:      #eeeaf7;
+  --d-text-hi:         #18142f;
+  --d-text-md:         #403a5d;
+  --d-text-lo:         #625c78;
+  --d-text-dim:        #706980;
+  --d-section-fg:      #706980;
+  --d-accent:          var(--brand);
+  --d-accent-bg:       var(--brand-light);
+  --d-accent-fg:       var(--brand-hover);
+  --d-tag-bg:          #eeeaf7;
+  --d-tag-fg:          #625c78;
+  --d-service-name:    #18142f;
+  --d-store-name:      #403a5d;
+  --d-stat-value:      var(--brand);
+  --d-sec-text:        #625c78;
+  --d-sec-strong:      var(--brand-hover);
+  --d-sec-border:      var(--brand);
+  --d-cs-arrow:        #cfc8dc;
+  --d-hover-border:    var(--brand-fg);
+  --d-row-bg:          #ffffff;
+  --d-row-hover:       #faf8fd;
+  --d-row-sep:         #eeeaf4;
+  --d-td-color:        #403a5d;
+  --d-td-muted:        #706980;
+  --d-cell-hi:         #18142f;
+  --d-check-done-bg:   #dcfce7;
+  --d-check-done-fg:   #16a34a;
+  --d-check-empty-bg:  #efeae0;
+  --d-check-empty-bd:  #e6e1d6;
+  --d-check-text:      #9c988c;
+  --d-check-text-done: #43413b;
+  --d-view-title:      #18142f;
+  --d-view-sub:        #625c78;
+  --d-count-border:    #e2ddeb;
+  --d-count-color:     #625c78;
+  --d-state-bg:        #ffffff;
+  --d-state-border:    #e2ddeb;
+  --d-state-color:     #625c78;
+}
+
+/* ── Dark theme override — MailHub premium dark ──────────────────────────── */
+[data-theme="dark"] {
+
+  /* Brand — brighter sage so the green reads against the deep canvas;
+     --brand-light becomes a deep green tint rather than a pale wash. */
+  --brand:              #7c3aed;
+  --brand-hover:        #6d28d9;
+  --brand-light:        #2a1d43;
+  --brand-fg:           #c4b5fd;
+  --brand-focus-ring:   rgba(167, 139, 250, 0.30);
+
+  /* Warm secondary indicator, dark-tuned. */
+  --accent-orange:      #22d3ee;
+  --accent-orange-bg:   #0c2b34;
+
+  /* Status — tuned for dark surfaces */
+  --color-success:      #34d399;
+  --color-success-bg:   #052e23;
+  --color-success-light:#10b981;
+  --color-success-ring: rgba(52, 211, 153, 0.18);
+  --color-danger:       #f87171;
+  --color-danger-bg:    #2a1215;
+  --color-danger-border:#7f1d1d;
+  --color-danger-ring:  rgba(248, 113, 113, 0.18);
+  --color-warning:      #fbbf24;
+  --color-warning-text: #fcd34d;
+  --color-warning-bg:   #2a1f06;
+
+  /* Role badges */
+  --role-superadmin-bg: #1e1b4b;
+  --role-superadmin-fg: #c4b5fd;
+  --role-admin-bg:      #0c2444;
+  --role-admin-fg:      #93c5fd;
+  --role-employee-bg:   #052e23;
+  --role-employee-fg:   #6ee7b7;
+
+  /* Info / notice */
+  --info-bg:     #0c1c33;
+  --info-border: #1e3a5f;
+
+  /* Global text scale — flip to light-on-dark */
+  --text-hi:    #f4f6fb;
+  --text-md:    #c0c6d2;
+  --text-lo:    #a8b0be;
+  --text-dim:   #929baa;
+
+  /* Global surfaces */
+  --surface-white:      #121722;
+  --surface-gray:       #181e2a;
+  --surface-gray-hover: #202838;
+
+  /* Global borders */
+  --border:       #2a3242;
+  --border-light: #202735;
+
+  /* Legacy bg alias */
+  --color-bg:    #090b11;
+
+  /* Auth pages — deep blue-violet canvas */
+  --auth-grad-from:     #080a10;
+  --auth-grad-mid:      #0d111b;
+  --auth-grad-to:       #171126;
+  --auth-card-bg:       #121722;
+
+  /* Sidebar — deep cool black */
+  --sb-bg:            #0b0e15;
+  --sb-border:        #202735;
+  --sb-hover:         #171d29;
+  --sb-active:        var(--brand);
+  --sb-active-hover:  var(--brand-hover);
+  --sb-text-hi:       #f4f6fb;
+  --sb-text-md:       #c0c6d2;
+  --sb-text-dim:      #a8b0be;
+  --sb-text-muted:    #929baa;
+  --sb-section-label: #7f8999;
+
+  /* Form tokens */
+  --form-input-bg:          #10151f;
+  --form-input-border:      #30394a;
+  --form-input-text:        #f4f6fb;
+  --form-input-placeholder: #929baa;
+  --form-label-text:        #e7eaf1;
+  --form-hint-text:         #a8b0be;
+
+  /* Card treatment — dark: a whisper of top sheen, deep ambient shadow. */
+  --card-sheen:        rgba(255, 255, 255, 0.035);
+  --card-shadow:       0 1px 2px rgba(0, 0, 0, 0.4), 0 12px 30px -18px rgba(0, 0, 0, 0.6);
+  --card-shadow-hover: 0 2px 6px rgba(0, 0, 0, 0.45), 0 20px 46px -20px rgba(0, 0, 0, 0.7);
+
+  /* Dashboard tokens */
+  --d-bg:              #090b11;
+  --d-surface:         #121722;
+  --d-surface-hover:   #1a202d;
+  --d-surface-active:  #29203d;
+  --d-border:          #2a3242;
+  --d-border-sub:      #202735;
+  --d-topbar-bg:       rgba(9, 11, 17, 0.88);
+  --d-topbar-border:   #2a3242;
+  --d-topbar-title:    #f4f6fb;
+  --d-menu-hover:      #1a202d;
+  --d-text-hi:         #f4f6fb;
+  --d-text-md:         #c0c6d2;
+  --d-text-lo:         #a8b0be;
+  --d-text-dim:        #929baa;
+  --d-section-fg:      #929baa;
+  --d-accent:          var(--brand);
+  --d-accent-bg:       var(--brand-light);
+  --d-accent-fg:       var(--brand-fg);
+  --d-tag-bg:          #1a202d;
+  --d-tag-fg:          #c0c6d2;
+  --d-service-name:    #f4f6fb;
+  --d-store-name:      #c0c6d2;
+  --d-stat-value:      var(--brand-fg);
+  --d-sec-text:        #a8b0be;
+  --d-sec-strong:      var(--brand-fg);
+  --d-sec-border:      var(--brand);
+  --d-cs-arrow:        #30394a;
+  --d-hover-border:    var(--brand);
+  --d-row-bg:          #0f141e;
+  --d-row-hover:       #171d29;
+  --d-row-sep:         #202735;
+  --d-td-color:        #c0c6d2;
+  --d-td-muted:        #929baa;
+  --d-cell-hi:         #f4f6fb;
+  --d-check-done-bg:   #052e23;
+  --d-check-done-fg:   #34d399;
+  --d-check-empty-bg:  #1a202d;
+  --d-check-empty-bd:  #30394a;
+  --d-check-text:      #7f8999;
+  --d-check-text-done: #c0c6d2;
+  --d-view-title:      #f4f6fb;
+  --d-view-sub:        #a8b0be;
+  --d-count-border:    #2a3242;
+  --d-count-color:     #a8b0be;
+  --d-state-bg:        #121722;
+  --d-state-border:    #2a3242;
+  --d-state-color:     #a8b0be;
+}
+
+/* ════════════════════════════════════════════════════════════════════════════════
+   PALETTES — modern mixed set. Default (Sage, muted green) lives in :root above;
+   the seven below are opt-in via [data-palette="…"] on <html>. Each overrides only
+   the brand-derived tokens; neutrals (canvas, text, borders) stay shared.
+   ════════════════════════════════════════════════════════════════════════════════ */
+
+/* ── Indigo 🔷 (Blue-violet) ─────────────────────────────────────────────── */
+[data-palette="indigo"] {
+  --brand:              #4f46e5;
+  --brand-hover:        #4338ca;
+  --brand-light:        #ecedfd;
+  --brand-fg:           #4f46e5;
+  --brand-focus-ring:   rgba(99, 102, 241, 0.18);
+  --accent-orange:      #d98b4a;
+  --accent-orange-bg:   #f8ede0;
+  --info-bg:            #f3f3fe;
+  --info-border:        #ddddfc;
+  --auth-grad-from:     #f7f7fe;
+  --auth-grad-mid:      #f1f1fe;
+  --auth-grad-to:       #f9f9fe;
+  --auth-card-bg:       #fdfcfa;
+  --d-accent:           var(--brand);
+  --d-accent-bg:        var(--brand-light);
+  --d-accent-fg:        var(--brand-hover);
+  --d-surface-active:   var(--brand-light);
+  --d-stat-value:       var(--brand);
+  --d-sec-strong:       var(--brand-hover);
+  --d-sec-border:       var(--brand);
+  --d-hover-border:     var(--brand-fg);
+}
+
+[data-palette="indigo"][data-theme="dark"] {
+  --brand:              #4f46e5;
+  --brand-hover:        #4338ca;
+  --brand-light:        #1c1c38;
+  --brand-fg:           #adb4fa;
+  --brand-focus-ring:   rgba(129, 140, 248, 0.28);
+  --accent-orange:      #e0a165;
+  --accent-orange-bg:   #2e2317;
+  --info-bg:            #17182d;
+  --info-border:        #323372;
+  --auth-grad-from:     #10101a;
+  --auth-grad-mid:      #16172a;
+  --auth-grad-to:       #1c1c38;
+  --auth-card-bg:       #1a1b34;
+  --d-accent:           var(--brand);
+  --d-accent-bg:        var(--brand-light);
+  --d-accent-fg:        var(--brand-fg);
+  --d-surface-active:   #292a5b;
+  --d-stat-value:       var(--brand-fg);
+  --d-sec-strong:       var(--brand-fg);
+  --d-sec-border:       var(--brand);
+  --d-hover-border:     var(--brand);
+}
+
+/* ── Violet 🔮 (Purple) ─────────────────────────────────────────────── */
+[data-palette="violet"] {
+  --brand:              #7c3aed;
+  --brand-hover:        #6d28d9;
+  --brand-light:        #f1ebfe;
+  --brand-fg:           #7c3aed;
+  --brand-focus-ring:   rgba(139, 92, 246, 0.18);
+  --accent-orange:      #d98b4a;
+  --accent-orange-bg:   #f8ede0;
+  --info-bg:            #f6f2fe;
+  --info-border:        #e5dbfd;
+  --auth-grad-from:     #f9f7ff;
+  --auth-grad-mid:      #f5f0fe;
+  --auth-grad-to:       #faf8ff;
+  --auth-card-bg:       #fdfcfa;
+  --d-accent:           var(--brand);
+  --d-accent-bg:        var(--brand-light);
+  --d-accent-fg:        var(--brand-hover);
+  --d-surface-active:   var(--brand-light);
+  --d-stat-value:       var(--brand);
+  --d-sec-strong:       var(--brand-hover);
+  --d-sec-border:       var(--brand);
+  --d-hover-border:     var(--brand-fg);
+}
+
+[data-palette="violet"][data-theme="dark"] {
+  --brand:              #7c3aed;
+  --brand-hover:        #6d28d9;
+  --brand-light:        #241a39;
+  --brand-fg:           #c6b4fc;
+  --brand-focus-ring:   rgba(167, 139, 250, 0.28);
+  --accent-orange:      #e0a165;
+  --accent-orange-bg:   #2e2317;
+  --info-bg:            #1d162d;
+  --info-border:        #442f74;
+  --auth-grad-from:     #13101b;
+  --auth-grad-mid:      #1c152b;
+  --auth-grad-to:       #241a39;
+  --auth-card-bg:       #211934;
+  --d-accent:           var(--brand);
+  --d-accent-bg:        var(--brand-light);
+  --d-accent-fg:        var(--brand-fg);
+  --d-surface-active:   #37275d;
+  --d-stat-value:       var(--brand-fg);
+  --d-sec-strong:       var(--brand-fg);
+  --d-sec-border:       var(--brand);
+  --d-hover-border:     var(--brand);
+}
+
+/* ── Emerald 🟢 (Green) ─────────────────────────────────────────────── */
+[data-palette="emerald"] {
+  --brand:              #047857;
+  --brand-hover:        #065f46;
+  --brand-light:        #e2f7f0;
+  --brand-fg:           #047857;
+  --brand-focus-ring:   rgba(16, 185, 129, 0.18);
+  --accent-orange:      #d98b4a;
+  --accent-orange-bg:   #f8ede0;
+  --info-bg:            #ecf9f5;
+  --info-border:        #caf0e3;
+  --auth-grad-from:     #f3fcf9;
+  --auth-grad-mid:      #e9f9f4;
+  --auth-grad-to:       #f5fcfa;
+  --auth-card-bg:       #fdfcfa;
+  --d-accent:           var(--brand);
+  --d-accent-bg:        var(--brand-light);
+  --d-accent-fg:        var(--brand-hover);
+  --d-surface-active:   var(--brand-light);
+  --d-stat-value:       var(--brand);
+  --d-sec-strong:       var(--brand-hover);
+  --d-sec-border:       var(--brand);
+  --d-hover-border:     var(--brand-fg);
+}
+
+[data-palette="emerald"][data-theme="dark"] {
+  --brand:              #047857;
+  --brand-hover:        #065f46;
+  --brand-light:        #0b2d22;
+  --brand-fg:           #7be2bd;
+  --brand-focus-ring:   rgba(52, 211, 153, 0.28);
+  --accent-orange:      #e0a165;
+  --accent-orange-bg:   #2e2317;
+  --info-bg:            #0b241c;
+  --info-border:        #0d5940;
+  --auth-grad-from:     #0a1612;
+  --auth-grad-mid:      #0b231b;
+  --auth-grad-to:       #0b2d22;
+  --auth-card-bg:       #0b2a1f;
+  --d-accent:           var(--brand);
+  --d-accent-bg:        var(--brand-light);
+  --d-accent-fg:        var(--brand-fg);
+  --d-surface-active:   #0c4734;
+  --d-stat-value:       var(--brand-fg);
+  --d-sec-strong:       var(--brand-fg);
+  --d-sec-border:       var(--brand);
+  --d-hover-border:     var(--brand);
+}
+
+/* ── Teal 🐬 (Blue-green) ─────────────────────────────────────────────── */
+[data-palette="teal"] {
+  --brand:              #0f766e;
+  --brand-hover:        #115e59;
+  --brand-light:        #e3f6f4;
+  --brand-fg:           #0f766e;
+  --brand-focus-ring:   rgba(20, 184, 166, 0.18);
+  --accent-orange:      #d98b4a;
+  --accent-orange-bg:   #f8ede0;
+  --info-bg:            #ecf9f8;
+  --info-border:        #cbefeb;
+  --auth-grad-from:     #f3fbfb;
+  --auth-grad-mid:      #eaf9f7;
+  --auth-grad-to:       #f6fcfb;
+  --auth-card-bg:       #fdfcfa;
+  --d-accent:           var(--brand);
+  --d-accent-bg:        var(--brand-light);
+  --d-accent-fg:        var(--brand-hover);
+  --d-surface-active:   var(--brand-light);
+  --d-stat-value:       var(--brand);
+  --d-sec-strong:       var(--brand-hover);
+  --d-sec-border:       var(--brand);
+  --d-hover-border:     var(--brand-fg);
+}
+
+[data-palette="teal"][data-theme="dark"] {
+  --brand:              #0f766e;
+  --brand-hover:        #115e59;
+  --brand-light:        #0c2d29;
+  --brand-fg:           #77e3d5;
+  --brand-focus-ring:   rgba(45, 212, 191, 0.28);
+  --accent-orange:      #e0a165;
+  --accent-orange-bg:   #2e2317;
+  --info-bg:            #0c2421;
+  --info-border:        #0f5850;
+  --auth-grad-from:     #0b1615;
+  --auth-grad-mid:      #0b2220;
+  --auth-grad-to:       #0c2d29;
+  --auth-card-bg:       #0c2926;
+  --d-accent:           var(--brand);
+  --d-accent-bg:        var(--brand-light);
+  --d-accent-fg:        var(--brand-fg);
+  --d-surface-active:   #0e4741;
+  --d-stat-value:       var(--brand-fg);
+  --d-sec-strong:       var(--brand-fg);
+  --d-sec-border:       var(--brand);
+  --d-hover-border:     var(--brand);
+}
+
+/* ── Rose 🌹 (Pink-red) ─────────────────────────────────────────────── */
+[data-palette="rose"] {
+  --brand:              #be123c;
+  --brand-hover:        #9f1239;
+  --brand-light:        #fee8ec;
+  --brand-fg:           #be123c;
+  --brand-focus-ring:   rgba(244, 63, 94, 0.18);
+  --accent-orange:      #d98b4a;
+  --accent-orange-bg:   #f8ede0;
+  --info-bg:            #fef0f2;
+  --info-border:        #fdd5dc;
+  --auth-grad-from:     #fef5f7;
+  --auth-grad-mid:      #feeef1;
+  --auth-grad-to:       #fff7f9;
+  --auth-card-bg:       #fdfcfa;
+  --d-accent:           var(--brand);
+  --d-accent-bg:        var(--brand-light);
+  --d-accent-fg:        var(--brand-hover);
+  --d-surface-active:   var(--brand-light);
+  --d-stat-value:       var(--brand);
+  --d-sec-strong:       var(--brand-hover);
+  --d-sec-border:       var(--brand);
+  --d-hover-border:     var(--brand-fg);
+}
+
+[data-palette="rose"][data-theme="dark"] {
+  --brand:              #be123c;
+  --brand-hover:        #9f1239;
+  --brand-light:        #39151b;
+  --brand-fg:           #fca3b0;
+  --brand-focus-ring:   rgba(251, 113, 133, 0.28);
+  --accent-orange:      #e0a165;
+  --accent-orange-bg:   #2e2317;
+  --info-bg:            #2d1217;
+  --info-border:        #732230;
+  --auth-grad-from:     #1a0e10;
+  --auth-grad-mid:      #2b1116;
+  --auth-grad-to:       #39151b;
+  --auth-card-bg:       #341419;
+  --d-accent:           var(--brand);
+  --d-accent-bg:        var(--brand-light);
+  --d-accent-fg:        var(--brand-fg);
+  --d-surface-active:   #5c1d27;
+  --d-stat-value:       var(--brand-fg);
+  --d-sec-strong:       var(--brand-fg);
+  --d-sec-border:       var(--brand);
+  --d-hover-border:     var(--brand);
+}
+
+/* ── Amber 🟠 (Warm) ─────────────────────────────────────────────── */
+[data-palette="amber"] {
+  --brand:              #b45309;
+  --brand-hover:        #92400e;
+  --brand-light:        #fef3e2;
+  --brand-fg:           #b45309;
+  --brand-focus-ring:   rgba(245, 158, 11, 0.18);
+  --accent-orange:      #d98b4a;
+  --accent-orange-bg:   #f8ede0;
+  --info-bg:            #fef7eb;
+  --info-border:        #fdeac9;
+  --auth-grad-from:     #fffaf3;
+  --auth-grad-mid:      #fef6e9;
+  --auth-grad-to:       #fffbf5;
+  --auth-card-bg:       #fdfcfa;
+  --d-accent:           var(--brand);
+  --d-accent-bg:        var(--brand-light);
+  --d-accent-fg:        var(--brand-hover);
+  --d-surface-active:   var(--brand-light);
+  --d-stat-value:       var(--brand);
+  --d-sec-strong:       var(--brand-hover);
+  --d-sec-border:       var(--brand);
+  --d-hover-border:     var(--brand-fg);
+}
+
+[data-palette="amber"][data-theme="dark"] {
+  --brand:              #b45309;
+  --brand-hover:        #92400e;
+  --brand-light:        #39280a;
+  --brand-fg:           #fcd571;
+  --brand-focus-ring:   rgba(251, 191, 36, 0.28);
+  --accent-orange:      #e0a165;
+  --accent-orange-bg:   #2e2317;
+  --info-bg:            #2d200a;
+  --info-border:        #744d0a;
+  --auth-grad-from:     #1a140a;
+  --auth-grad-mid:      #2b1f0a;
+  --auth-grad-to:       #39280a;
+  --auth-card-bg:       #34250a;
+  --d-accent:           var(--brand);
+  --d-accent-bg:        var(--brand-light);
+  --d-accent-fg:        var(--brand-fg);
+  --d-surface-active:   #5c3e0a;
+  --d-stat-value:       var(--brand-fg);
+  --d-sec-strong:       var(--brand-fg);
+  --d-sec-border:       var(--brand);
+  --d-hover-border:     var(--brand);
+}
+
+/* ── Slate 🪨 (Cool grey) ─────────────────────────────────────────────── */
+[data-palette="slate"] {
+  --brand:              #475569;
+  --brand-hover:        #334155;
+  --brand-light:        #eceef1;
+  --brand-fg:           #475569;
+  --brand-focus-ring:   rgba(100, 116, 139, 0.18);
+  --accent-orange:      #d98b4a;
+  --accent-orange-bg:   #f8ede0;
+  --info-bg:            #f3f4f6;
+  --info-border:        #dde0e5;
+  --auth-grad-from:     #f7f8f9;
+  --auth-grad-mid:      #f1f2f5;
+  --auth-grad-to:       #f9f9fa;
+  --auth-card-bg:       #fdfcfa;
+  --d-accent:           var(--brand);
+  --d-accent-bg:        var(--brand-light);
+  --d-accent-fg:        var(--brand-hover);
+  --d-surface-active:   var(--brand-light);
+  --d-stat-value:       var(--brand);
+  --d-sec-strong:       var(--brand-hover);
+  --d-sec-border:       var(--brand);
+  --d-hover-border:     var(--brand-fg);
+}
+
+[data-palette="slate"][data-theme="dark"] {
+  --brand:              #475569;
+  --brand-hover:        #334155;
+  --brand-light:        #1c1f24;
+  --brand-fg:           #b9c3d1;
+  --brand-focus-ring:   rgba(148, 163, 184, 0.28);
+  --accent-orange:      #e0a165;
+  --accent-orange-bg:   #2e2317;
+  --info-bg:            #181a1d;
+  --info-border:        #323a44;
+  --auth-grad-from:     #101113;
+  --auth-grad-mid:      #17191c;
+  --auth-grad-to:       #1c1f24;
+  --auth-card-bg:       #1a1d21;
+  --d-accent:           var(--brand);
+  --d-accent-bg:        var(--brand-light);
+  --d-accent-fg:        var(--brand-fg);
+  --d-surface-active:   #2a2f37;
+  --d-stat-value:       var(--brand-fg);
+  --d-sec-strong:       var(--brand-fg);
+  --d-sec-border:       var(--brand);
+  --d-hover-border:     var(--brand);
+}
