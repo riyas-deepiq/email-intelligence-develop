@@ -7,6 +7,7 @@ import { setToken } from '@/shared/api/client';
 import { useToast } from '@/shared/toast/useToast';
 import { ProviderConnectionStep } from '@/features/provider-connection/components/ProviderConnectionStep';
 import { fetchSetupStatus } from '@/features/setup/setup.api';
+import { getOrg } from '@/features/organizations/organizations.api';
 import type { SetupStatus } from '@/features/setup/setup.api';
 import {
   getSyncConfig,
@@ -330,27 +331,32 @@ export function Setup() {
     });
   };
 
-  const handleDefaultSync = () => {
-    // Use the organization Admin Email entered in Step 1, not the current login identity.
-    const adminEmail = email.trim().toLowerCase();
-    const adminMailbox = syncMailboxes.find(
-      (mailbox) => mailbox.address.trim().toLowerCase() === adminEmail,
-    );
-
-    if (!adminMailbox) {
-      toast.warning(
-        `No discovered mailbox matches the admin email${adminEmail ? ` (${adminEmail})` : ''}. Connect or discover that mailbox first.`,
-        'Admin mailbox not found',
+  const handleDefaultSync = async () => {
+    try {
+      // Read the saved organization admin address, not the signed-in user's login email.
+      const org = await getOrg();
+      const adminEmail = org.adminEmail.trim().toLowerCase();
+      const adminMailbox = syncMailboxes.find(
+        (mailbox) => mailbox.address.trim().toLowerCase() === adminEmail,
       );
-      return;
-    }
 
-    void handleSaveSchedule(true, {
-      mailboxIds: [adminMailbox.id],
-      initialSyncDays: null,
-      businessHoursIntervalMin: 5,
-      offHoursIntervalMin: 60,
-    });
+      if (!adminMailbox) {
+        toast.warning(
+          `No discovered mailbox matches the organization admin email (${org.adminEmail}). Connect or discover that mailbox first.`,
+          'Admin mailbox not found',
+        );
+        return;
+      }
+
+      void handleSaveSchedule(true, {
+        mailboxIds: [adminMailbox.id],
+        initialSyncDays: null,
+        businessHoursIntervalMin: 5,
+        offHoursIntervalMin: 60,
+      });
+    } catch {
+      toast.error('Could not load the organization admin email. Please try again.');
+    }
   };
 
   const handleSaveSchedule = async (
@@ -967,9 +973,10 @@ export function Setup() {
                     className={styles.btnBack}
                     onClick={() => handleSaveSchedule(false)}
                     disabled={savingSchedule}
-                    style={{ fontSize: 13 }}
+                    hidden
+                    style={{ display: 'none' }}
                   >
-                    Skip for now
+                    Skip for now old
                   </button>
                   <button
                     type="button"
@@ -978,7 +985,7 @@ export function Setup() {
                     disabled={savingSchedule || loadingMailboxes}
                     style={{ fontSize: 13 }}
                   >
-                    Default Sync
+                    Skip for now
                   </button>
                   <button
                     type="button"
