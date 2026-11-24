@@ -331,7 +331,7 @@ export function Setup() {
     });
   };
 
-  const handleDefaultSync = async () => {
+  const handleSkipForNow = async () => {
     try {
       // Read the saved organization admin address, not the signed-in user's login email.
       const org = await getOrg();
@@ -348,7 +348,7 @@ export function Setup() {
         return;
       }
 
-      void handleSaveSchedule(true, {
+      void handleSaveSchedule({
         mailboxIds: [adminMailbox.id],
         initialSyncDays: null,
         businessHoursIntervalMin: 5,
@@ -359,15 +359,12 @@ export function Setup() {
     }
   };
 
-  const handleSaveSchedule = async (
-    andStart: boolean,
-    overrides?: {
-      mailboxIds: string[];
-      initialSyncDays: number | null;
-      businessHoursIntervalMin: number;
-      offHoursIntervalMin: number;
-    },
-  ) => {
+  const handleSaveSchedule = async (overrides?: {
+    mailboxIds: string[];
+    initialSyncDays: number | null;
+    businessHoursIntervalMin: number;
+    offHoursIntervalMin: number;
+  }) => {
     setSavingSchedule(true);
     try {
       const mailboxIds = overrides?.mailboxIds ?? Array.from(selectedIds);
@@ -386,8 +383,8 @@ export function Setup() {
         offHoursIntervalMin: overrides?.offHoursIntervalMin ?? offHoursIntervalMin,
       });
 
-      // 3. Kick off sync if requested (non-fatal — collector may not be up yet)
-      if (andStart && mailboxIds.length > 0) {
+      // 3. Kick off sync (non-fatal — collector may not be up yet)
+      if (mailboxIds.length > 0) {
         // Always send the explicit selection. An unscoped start means "all
         // enabled mailboxes" and can become broader than this setup choice if
         // another mailbox update races the request.
@@ -971,17 +968,7 @@ export function Setup() {
                   <button
                     type="button"
                     className={styles.btnBack}
-                    onClick={() => handleSaveSchedule(false)}
-                    disabled={savingSchedule}
-                    hidden
-                    style={{ display: 'none' }}
-                  >
-                    Skip for now old
-                  </button>
-                  <button
-                    type="button"
-                    className={styles.btnBack}
-                    onClick={handleDefaultSync}
+                    onClick={handleSkipForNow}
                     disabled={savingSchedule || loadingMailboxes}
                     style={{ fontSize: 13 }}
                   >
@@ -990,7 +977,7 @@ export function Setup() {
                   <button
                     type="button"
                     className={styles.btnPrimary}
-                    onClick={() => handleSaveSchedule(true)}
+                    onClick={() => handleSaveSchedule()}
                     disabled={savingSchedule || selectedIds.size === 0}
                   >
                     {savingSchedule
